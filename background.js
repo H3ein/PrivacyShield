@@ -71,22 +71,41 @@ async function updateBadge() {
  * Track request and estimate blocks
  */
 function trackRequest(details) {
-  const url = details.url;
+  const url = details.url.toLowerCase();
   const type = details.type;
 
   // Skip main_frame requests
   if (type === 'main_frame') return;
 
-  // Heuristic: Check if URL matches common tracker/ad patterns
-  const isTracker = /analytics|tracking|tracker|telemetry|metrics/i.test(url);
-  const isAd = /doubleclick|adsystem|advertising|adservice|pagead/i.test(url);
+  // Expanded patterns for better tracking
+  const trackerPatterns = [
+    'analytics', 'tracking', 'tracker', 'telemetry', 'metrics',
+    'googlesyndication', 'googletagmanager', 'google-analytics',
+    'facebook.com/tr', 'connect.facebook.net',
+    'scorecardresearch', 'quantserve', 'chartbeat',
+    'newrelic', 'segment.com', 'amplitude',
+    'mixpanel', 'hotjar', 'mouseflow',
+    'clarity.ms', 'fullstory', 'logrocket'
+  ];
+
+  const adPatterns = [
+    'doubleclick', 'adsystem', 'advertising', 'adservice', 'pagead',
+    'googlesyndication', 'adnxs', 'adsrvr', 'advertising.com',
+    'pubmatic', 'rubiconproject', 'openx', 'criteo',
+    'outbrain', 'taboola', 'media.net', 'indexww'
+  ];
+
+  const isTracker = trackerPatterns.some(pattern => url.includes(pattern));
+  const isAd = adPatterns.some(pattern => url.includes(pattern));
 
   if (isTracker) {
     stats.incrementStat('trackersBlocked', 1);
     updateBadge();
+    console.log('Tracker blocked:', url);
   } else if (isAd) {
     stats.incrementStat('adsBlocked', 1);
     updateBadge();
+    console.log('Ad blocked:', url);
   }
 
   // Update per-tab stats
@@ -107,8 +126,13 @@ function setupDNRTracking() {
   // Listen to web requests to estimate blocks
   chrome.webRequest.onBeforeRequest.addListener(
     trackRequest,
-    { urls: ['<all_urls>'], types: ['script', 'image', 'xmlhttprequest', 'sub_frame'] }
+    {
+      urls: ['<all_urls>'],
+      types: ['script', 'image', 'xmlhttprequest', 'sub_frame', 'stylesheet', 'font', 'media', 'object']
+    }
   );
+
+  console.log('PrivacyShield: DNR tracking enabled');
 }
 
 /**
@@ -149,6 +173,8 @@ async function handleMessage(message, sender) {
       const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
       const tabId = tabs[0]?.id;
       const currentTabStats = tabId ? getTabStats(tabId) : { trackers: 0, ads: 0, fingerprints: 0 };
+
+      console.log('Sending stats:', globalStats, 'Current tab:', currentTabStats);
 
       return {
         ...globalStats,

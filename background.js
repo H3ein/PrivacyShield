@@ -1,6 +1,6 @@
 // PrivacyShield - Background Service Worker (MV3)
 
-import { MESSAGE_TYPES } from './src/core/constants.js';
+import { MESSAGE_TYPES, TRACKING_PARAMS, SOCIAL_WIDGET_DOMAINS } from './src/core/constants.js';
 import * as storage from './src/core/storage.js';
 import { extractDomain, extractHostname } from './src/core/utils.js';
 import * as trackerBlocker from './src/privacy/tracker-blocker.js';
@@ -98,6 +98,9 @@ function trackRequest(details) {
   const isTracker = trackerPatterns.some(pattern => url.includes(pattern));
   const isAd = adPatterns.some(pattern => url.includes(pattern));
 
+  // Check for social widgets (if blocking enabled)
+  const isSocialWidget = SOCIAL_WIDGET_DOMAINS.some(domain => url.includes(domain));
+
   if (isTracker) {
     stats.incrementStat('trackersBlocked', 1);
     updateBadge();
@@ -106,6 +109,8 @@ function trackRequest(details) {
     stats.incrementStat('adsBlocked', 1);
     updateBadge();
     console.log('Ad blocked:', url);
+  } else if (isSocialWidget) {
+    console.log('Social widget detected:', url);
   }
 
   // Update per-tab stats
@@ -116,6 +121,45 @@ function trackRequest(details) {
     const tab = tabStats.get(details.tabId);
     if (isTracker) tab.trackers++;
     if (isAd) tab.ads++;
+  }
+}
+
+/**
+ * Handle cookie removal (third-party cookies)
+ */
+async function setupCookieBlocking() {
+  const settings = await storage.getSettings();
+
+  if (settings.blockThirdPartyCookies) {
+    chrome.cookies.onChanged.addListener(async (changeInfo) => {
+      if (!changeInfo.removed && changeInfo.cookie) {
+        const cookie = changeInfo.cookie;
+
+        // Check if it's a third-party cookie
+        const currentTabs = await chrome.tabs.query({ active: true });
+        if (currentTabs.length > 0) {
+          const currentUrl = currentTabs[0].url;
+          if (currentUrl) {
+            const currentDomain = extractDomain(extractHostname(currentUrl));
+            const cookieDomain = cookie.domain.replace(/^\./, '');
+
+            // If domains don't match, it's third-party - remove it
+            if (!currentDomain.includes(cookieDomain) && !cookieDomain.includes(currentDomain)) {
+              try {
+                await chrome.cookies.remove({
+                  url: `https://${cookie.domain}${cookie.path}`,
+                  name: cookie.name
+                });
+                console.log('Third-party cookie blocked:', cookie.name, cookie.domain);
+              } catch (e) {
+                // Cookie might already be removed
+              }
+            }
+          }
+        }
+      }
+    });
+    console.log('PrivacyShield: Third-party cookie blocking enabled');
   }
 }
 
@@ -296,3 +340,4 @@ initialize();
 setupMessageHandlers();
 setupTabHandlers();
 setupDNRTracking();
+setupCookieBlocking();

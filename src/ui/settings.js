@@ -28,6 +28,9 @@ async function loadSettings() {
     document.getElementById('block-ads').checked = settings.blockAds;
     document.getElementById('block-trackers').checked = settings.blockTrackers;
     document.getElementById('fingerprint-protection').checked = settings.fingerprintProtection;
+    document.getElementById('block-third-party-cookies').checked = settings.blockThirdPartyCookies;
+    document.getElementById('strip-tracking-params').checked = settings.stripTrackingParams;
+    document.getElementById('block-social-widgets').checked = settings.blockSocialWidgets || false;
   }
 }
 
@@ -86,6 +89,27 @@ function setupEventListeners() {
     await chrome.runtime.sendMessage({
       type: MESSAGE_TYPES.UPDATE_SETTINGS,
       data: { fingerprintProtection: e.target.checked }
+    });
+  });
+
+  document.getElementById('block-third-party-cookies').addEventListener('change', async (e) => {
+    await chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.UPDATE_SETTINGS,
+      data: { blockThirdPartyCookies: e.target.checked }
+    });
+  });
+
+  document.getElementById('strip-tracking-params').addEventListener('change', async (e) => {
+    await chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.UPDATE_SETTINGS,
+      data: { stripTrackingParams: e.target.checked }
+    });
+  });
+
+  document.getElementById('block-social-widgets').addEventListener('change', async (e) => {
+    await chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.UPDATE_SETTINGS,
+      data: { blockSocialWidgets: e.target.checked }
     });
   });
 

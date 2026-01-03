@@ -7,7 +7,8 @@
   "permissions": [
     "storage",
     "declarativeNetRequest",
-    "webRequest"
+    "webRequest",
+    "cookies"
   ],
 
   "host_permissions": [

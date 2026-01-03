@@ -9,6 +9,9 @@ export const DEFAULT_SETTINGS = {
   blockAds: true,
   blockTrackers: true,
   fingerprintProtection: true,
+  blockThirdPartyCookies: true,
+  stripTrackingParams: true,
+  blockSocialWidgets: false,  // Optional, can break embedded content
   whitelistedDomains: []
 };
 
@@ -32,6 +35,17 @@ export const TRACKING_PARAMS = [
   'twclid',            // Twitter
   'li_fat_id',         // LinkedIn
   'igshid'             // Instagram
+];
+
+// Social media widget domains
+export const SOCIAL_WIDGET_DOMAINS = [
+  'facebook.com/plugins',
+  'connect.facebook.net',
+  'platform.twitter.com',
+  'platform.linkedin.com',
+  'instagram.com/embed',
+  'pinterest.com/js',
+  'reddit.com/static/button'
 ];
 
 // DNR rule ID ranges (simplified - 3 rule sets only)
@@ -62,6 +76,7 @@ export default {
   VERSION,
   DEFAULT_SETTINGS,
   TRACKING_PARAMS,
+  SOCIAL_WIDGET_DOMAINS,
   RULE_ID_RANGES,
   MESSAGE_TYPES
 };

@@ -62,7 +62,8 @@ async function updateBadge() {
   } else {
     const badgeText = total > 999 ? '999+' : total.toString();
     chrome.action.setBadgeText({ text: badgeText });
-    chrome.action.setBadgeBackgroundColor({ color: '#000000' });
+    chrome.action.setBadgeBackgroundColor({ color: '#FFFFFF' });
+    chrome.action.setBadgeTextColor({ color: '#000000' });
   }
 }
 

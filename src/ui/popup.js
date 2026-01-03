@@ -4,6 +4,7 @@ import { MESSAGE_TYPES } from '../core/constants.js';
 import { formatNumber, extractDomain, extractHostname } from '../core/utils.js';
 
 let currentTab = null;
+let updateInterval = null;
 
 /**
  * Initialize popup
@@ -19,6 +20,9 @@ async function initialize() {
 
   // Setup event listeners
   setupEventListeners();
+
+  // Auto-refresh stats every 2 seconds
+  updateInterval = setInterval(loadStats, 2000);
 }
 
 /**
@@ -48,19 +52,39 @@ async function loadStats() {
   });
 
   if (stats) {
-    // Update stat displays
+    // Use current tab stats for the popup display (real-time per page)
+    const currentTab = stats.currentTab || { trackers: 0, ads: 0, fingerprints: 0 };
+
+    // Update stat displays with current tab stats
     document.getElementById('trackers-blocked').textContent =
-      formatNumber(stats.trackersBlocked || 0);
+      formatNumber(currentTab.trackers);
 
     document.getElementById('ads-blocked').textContent =
-      formatNumber(stats.adsBlocked || 0);
+      formatNumber(currentTab.ads);
 
     document.getElementById('fingerprints-blocked').textContent =
-      formatNumber(stats.fingerprintsBlocked || 0);
+      formatNumber(currentTab.fingerprints);
 
-    document.getElementById('privacy-score').textContent =
-      stats.privacyScore || 100;
+    // Privacy score based on current tab threats
+    const privacyScore = calculatePrivacyScore(currentTab);
+    document.getElementById('privacy-score').textContent = privacyScore;
   }
+}
+
+/**
+ * Calculate privacy score for current tab
+ */
+function calculatePrivacyScore(tabStats) {
+  const { trackers, ads, fingerprints } = tabStats;
+
+  let score = 100;
+
+  // Deduct for threats detected on this page
+  score -= Math.min(trackers * 2, 30);       // Max -30 for trackers
+  score -= Math.min(ads * 1, 20);            // Max -20 for ads
+  score -= Math.min(fingerprints * 3, 50);   // Max -50 for fingerprinting
+
+  return Math.max(0, Math.min(100, Math.round(score)));
 }
 
 /**
@@ -101,6 +125,13 @@ function setupEventListeners() {
     chrome.runtime.openOptionsPage();
   });
 }
+
+// Clean up on unload
+window.addEventListener('unload', () => {
+  if (updateInterval) {
+    clearInterval(updateInterval);
+  }
+});
 
 // Initialize on load
 initialize();

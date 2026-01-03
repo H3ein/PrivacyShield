@@ -6,6 +6,9 @@ import { extractDomain, extractHostname } from './src/core/utils.js';
 import * as trackerBlocker from './src/privacy/tracker-blocker.js';
 import * as stats from './src/privacy/stats.js';
 
+// Track blocks per tab
+const tabStats = new Map();
+
 /**
  * Initialize extension
  */
@@ -19,6 +22,9 @@ async function initialize() {
   // Load settings and apply
   const settings = await storage.getSettings();
   await applySettings(settings);
+
+  // Update badge with current stats
+  await updateBadge();
 
   console.log('PrivacyShield: Ready');
 }
@@ -42,6 +48,73 @@ async function applySettings(settings) {
 
   // Malware protection is always on
   await trackerBlocker.enableRuleset('malware');
+}
+
+/**
+ * Update badge with total blocks
+ */
+async function updateBadge() {
+  const currentStats = stats.getStats();
+  const total = currentStats.trackersBlocked + currentStats.adsBlocked + currentStats.fingerprintsBlocked;
+
+  if (total === 0) {
+    chrome.action.setBadgeText({ text: '' });
+  } else {
+    const badgeText = total > 999 ? '999+' : total.toString();
+    chrome.action.setBadgeText({ text: badgeText });
+    chrome.action.setBadgeBackgroundColor({ color: '#000000' });
+  }
+}
+
+/**
+ * Track request and estimate blocks
+ */
+function trackRequest(details) {
+  const url = details.url;
+  const type = details.type;
+
+  // Skip main_frame requests
+  if (type === 'main_frame') return;
+
+  // Heuristic: Check if URL matches common tracker/ad patterns
+  const isTracker = /analytics|tracking|tracker|telemetry|metrics/i.test(url);
+  const isAd = /doubleclick|adsystem|advertising|adservice|pagead/i.test(url);
+
+  if (isTracker) {
+    stats.incrementStat('trackersBlocked', 1);
+    updateBadge();
+  } else if (isAd) {
+    stats.incrementStat('adsBlocked', 1);
+    updateBadge();
+  }
+
+  // Update per-tab stats
+  if (details.tabId >= 0) {
+    if (!tabStats.has(details.tabId)) {
+      tabStats.set(details.tabId, { trackers: 0, ads: 0, fingerprints: 0 });
+    }
+    const tab = tabStats.get(details.tabId);
+    if (isTracker) tab.trackers++;
+    if (isAd) tab.ads++;
+  }
+}
+
+/**
+ * Setup DNR tracking
+ */
+function setupDNRTracking() {
+  // Listen to web requests to estimate blocks
+  chrome.webRequest.onBeforeRequest.addListener(
+    trackRequest,
+    { urls: ['<all_urls>'], types: ['script', 'image', 'xmlhttprequest', 'sub_frame'] }
+  );
+}
+
+/**
+ * Get stats for specific tab
+ */
+function getTabStats(tabId) {
+  return tabStats.get(tabId) || { trackers: 0, ads: 0, fingerprints: 0 };
 }
 
 /**
@@ -70,16 +143,39 @@ async function handleMessage(message, sender) {
       return { success: true };
 
     case MESSAGE_TYPES.GET_STATS:
-      return stats.getStats();
+      // Return both global and current tab stats
+      const globalStats = stats.getStats();
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      const tabId = tabs[0]?.id;
+      const currentTabStats = tabId ? getTabStats(tabId) : { trackers: 0, ads: 0, fingerprints: 0 };
+
+      return {
+        ...globalStats,
+        currentTab: currentTabStats
+      };
 
     case MESSAGE_TYPES.RESET_STATS:
       await stats.resetStats();
+      tabStats.clear();
+      await updateBadge();
       return { success: true };
 
     case MESSAGE_TYPES.UPDATE_STATS:
       // Content scripts can update stats (e.g., fingerprint blocks)
       if (data.stat && data.amount) {
         stats.incrementStat(data.stat, data.amount);
+        await updateBadge();
+
+        // Update tab stats too
+        if (sender.tab?.id >= 0) {
+          if (!tabStats.has(sender.tab.id)) {
+            tabStats.set(sender.tab.id, { trackers: 0, ads: 0, fingerprints: 0 });
+          }
+          const tab = tabStats.get(sender.tab.id);
+          if (data.stat === 'fingerprintsBlocked') {
+            tab.fingerprints += data.amount;
+          }
+        }
       }
       return { success: true };
 
@@ -111,30 +207,23 @@ async function handleMessage(message, sender) {
 }
 
 /**
- * Track DNR blocks
- */
-function setupDNRTracking() {
-  // Listen for web requests to count blocks
-  chrome.webRequest.onBeforeRequest.addListener(
-    (details) => {
-      // This fires for all requests, but DNR blocks them before they complete
-      // We track successful blocks via DNR matched rules
-    },
-    { urls: ['<all_urls>'] }
-  );
-
-  // Note: In MV3, we can't directly intercept DNR blocks
-  // Stats will be approximate based on rule matches
-}
-
-/**
  * Handle tab updates
  */
 function setupTabHandlers() {
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === 'loading' && tab.url) {
+      // Reset tab stats on new page load
+      tabStats.set(tabId, { trackers: 0, ads: 0, fingerprints: 0 });
+    }
+
     if (changeInfo.status === 'complete' && tab.url) {
       handlePageLoad(tab.url, tabId);
     }
+  });
+
+  // Clean up closed tabs
+  chrome.tabs.onRemoved.addListener((tabId) => {
+    tabStats.delete(tabId);
   });
 }
 
@@ -179,3 +268,4 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 initialize();
 setupMessageHandlers();
 setupTabHandlers();
+setupDNRTracking();

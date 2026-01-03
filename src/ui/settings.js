@@ -11,6 +11,9 @@ async function initialize() {
   await loadWhitelist();
   await loadStats();
   setupEventListeners();
+
+  // Auto-refresh stats every 5 seconds
+  setInterval(loadStats, 5000);
 }
 
 /**
@@ -42,7 +45,7 @@ async function loadWhitelist() {
 }
 
 /**
- * Load stats
+ * Load stats (all-time global stats)
  */
 async function loadStats() {
   const stats = await chrome.runtime.sendMessage({
@@ -50,6 +53,7 @@ async function loadStats() {
   });
 
   if (stats) {
+    // Display global all-time stats
     document.getElementById('total-trackers').textContent =
       formatNumber(stats.trackersBlocked || 0);
     document.getElementById('total-ads').textContent =

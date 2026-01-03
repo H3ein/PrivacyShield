@@ -18,7 +18,9 @@
       "Bash(do test:*)",
       "Bash(tree:*)",
       "Bash(grep:*)",
-      "Bash(du -sh:*)"
+      "Bash(du -sh:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

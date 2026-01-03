@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrivacyShield Max - Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="settings-container">
+
+    <!-- Header -->
+    <header class="settings-header">
+      <div class="header-left">
+        <img src="icons/icon48.png" alt="PrivacyShield Max" class="logo-icon">
+        <div class="header-info">
+          <h1>PrivacyShield Max Settings</h1>
+          <p class="header-subtitle">Privacy-first protection with automatic learning</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-secondary" id="export-btn">Export Data</button>
+        <button class="btn-secondary" id="import-btn">Import Data</button>
+        <input type="file" id="import-file" accept=".json" style="display: none;">
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="settings-main">
+
+      <!-- Section 1: Protection Level -->
+      <section class="setting-section">
+        <div class="section-header">
+          <h2>🛡️ Protection Level</h2>
+          <p class="section-description">
+            PrivacyShield automatically increases protection over time.
+            You can override this if needed.
+          </p>
+        </div>
+
+        <div class="level-selector">
+          <label class="level-option">
+            <input type="radio" name="level" value="conservative" id="level-conservative">
+            <div class="level-card">
+              <div class="level-header">
+                <span class="level-icon">🛡️</span>
+                <span class="level-name">Conservative</span>
+              </div>
+              <div class="level-desc">Block obvious threats only. Best for first 7 days.</div>
+            </div>
+          </label>
+
+          <label class="level-option">
+            <input type="radio" name="level" value="moderate" id="level-moderate" checked>
+            <div class="level-card">
+              <div class="level-header">
+                <span class="level-icon">🔰</span>
+                <span class="level-name">Moderate</span>
+                <span class="recommended-badge">Recommended</span>
+              </div>
+              <div class="level-desc">Balanced protection with automatic blocking at 85%+ confidence.</div>
+            </div>
+          </label>
+
+          <label class="level-option">
+            <input type="radio" name="level" value="aggressive" id="level-aggressive">
+            <div class="level-card">
+              <div class="level-header">
+                <span class="level-icon">⚔️</span>
+                <span class="level-name">Aggressive</span>
+              </div>
+              <div class="level-desc">Maximum privacy protection. May require occasional site whitelisting.</div>
+            </div>
+          </label>
+        </div>
+
+        <label class="checkbox-option highlighted">
+          <input type="checkbox" id="auto-progression" checked>
+          <div class="checkbox-content">
+            <span class="checkbox-label">Let PrivacyShield automatically increase protection</span>
+            <span class="checkbox-desc">Recommended - Gradually strengthens protection as you use the extension</span>
+          </div>
+        </label>
+
+        <!-- Protection Status -->
+        <div class="protection-status" id="protection-status">
+          <div class="status-item">
+            <span class="status-label">Current Level:</span>
+            <span class="status-value" id="current-level-display">Moderate</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Days Since Install:</span>
+            <span class="status-value" id="days-installed">14</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Progress to Next Level:</span>
+            <span class="status-value" id="level-progress">75%</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Learning & Adaptation -->
+      <section class="setting-section">
+        <div class="section-header">
+          <h2>🧠 Learning & Adaptation</h2>
+          <p class="section-description">
+            PrivacyShield learns from your browsing to improve protection.
+          </p>
+        </div>
+
+        <label class="checkbox-option">
+          <input type="checkbox" id="learning-enabled" checked>
+          <div class="checkbox-content">
+            <span class="checkbox-label">Enable AI-powered learning</span>
+            <span class="checkbox-desc">Automatically detect new threats and reduce false positives</span>
+          </div>
+        </label>
+
+        <!-- Learning Stats -->
+        <div class="learning-stats">
+          <div class="stat-card">
+            <div class="stat-icon">🌐</div>
+            <div class="stat-content">
+              <div class="stat-value" id="trusted-sites-count">0</div>
+              <div class="stat-label">Trusted Sites Learned</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🔍</div>
+            <div class="stat-content">
+              <div class="stat-value" id="new-techniques-count">0</div>
+              <div class="stat-label">New Techniques Detected</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🔧</div>
+            <div class="stat-content">
+              <div class="stat-value" id="auto-fixed-count">0</div>
+              <div class="stat-label">Sites Auto-Fixed</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-content">
+              <div class="stat-value" id="threats-learned">0</div>
+              <div class="stat-label">Threat Patterns Learned</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-secondary" id="reset-learning-btn">Reset Learning Data</button>
+      </section>
+
+      <!-- Section 3: Trusted Sites -->
+      <section class="setting-section">
+        <div class="section-header">
+          <h2>⚪ Trusted Sites</h2>
+          <p class="section-description">
+            Sites you've manually trusted or that were learned automatically.
+          </p>
+        </div>
+
+        <div class="add-site-form">
+          <input type="text" id="site-input" placeholder="example.com" class="site-input">
+          <button class="btn-primary" id="add-site-btn">Add Site</button>
+        </div>
+
+        <div class="site-list" id="trusted-sites-list">
+          <!-- Sites will be populated by JS -->
+          <div class="empty-state" id="empty-sites">
+            <span class="empty-icon">🌐</span>
+            <p>No trusted sites yet. Sites you visit frequently will be added automatically.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Privacy Priority -->
+      <section class="setting-section">
+        <div class="section-header">
+          <h2>🔒 Privacy Priority</h2>
+          <p class="section-description">
+            Choose what matters most to you. Tracking and fingerprinting protection is always on.
+          </p>
+        </div>
+
+        <div class="priority-options">
+          <label class="checkbox-option">
+            <input type="checkbox" checked disabled>
+            <div class="checkbox-content">
+              <span class="checkbox-label">Tracking & Fingerprinting Protection</span>
+              <span class="checkbox-desc">Always enabled - Core privacy protection</span>
+            </div>
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" id="block-ads" checked>
+            <div class="checkbox-content">
+              <span class="checkbox-label">Block Advertisements</span>
+              <span class="checkbox-desc">Remove ads and sponsored content (side benefit of privacy protection)</span>
+            </div>
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" id="block-social-widgets">
+            <div class="checkbox-content">
+              <span class="checkbox-label">Block Social Media Widgets</span>
+              <span class="checkbox-desc">Remove like buttons, share widgets, and embedded content</span>
+            </div>
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" id="block-cookie-banners" checked>
+            <div class="checkbox-content">
+              <span class="checkbox-label">Hide Cookie Banners</span>
+              <span class="checkbox-desc">Automatically hide cookie consent popups</span>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- Section 5: Advanced -->
+      <details class="setting-section advanced-section">
+        <summary class="section-header clickable">
+          <h2>🔧 Advanced Options</h2>
+          <p class="section-description">For power users only</p>
+        </summary>
+
+        <div class="advanced-content">
+          <label class="checkbox-option">
+            <input type="checkbox" id="debug-mode">
+            <div class="checkbox-content">
+              <span class="checkbox-label">Debug Mode</span>
+              <span class="checkbox-desc">Enable detailed logging (for developers)</span>
+            </div>
+          </label>
+
+          <div class="advanced-actions">
+            <button class="btn-secondary" id="view-stats-btn">View Detailed Statistics</button>
+            <button class="btn-danger" id="reset-all-btn">Reset Everything</button>
+          </div>
+        </div>
+      </details>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="settings-footer">
+      <div class="footer-info">
+        <span class="version">PrivacyShield Max v2.0.0</span>
+        <span class="separator">•</span>
+        <a href="#" id="help-link" class="footer-link">Help</a>
+        <span class="separator">•</span>
+        <a href="#" id="about-link" class="footer-link">About</a>
+      </div>
+      <div class="footer-message" id="save-message" style="display: none;">
+        Settings saved automatically
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>

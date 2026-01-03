@@ -1,0 +1,29 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simple Shield Design -->
+  <defs>
+    <linearGradient id="shield" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#007bff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Shield Shape -->
+  <path d="M64 12 L24 32 L24 72 Q24 96 64 116 Q104 96 104 72 L104 32 Z" 
+        fill="url(#shield)" 
+        stroke="#ffffff" 
+        stroke-width="2"/>
+  
+  <!-- Lock Symbol -->
+  <rect x="52" y="56" width="24" height="18" rx="2" fill="#ffffff"/>
+  <path d="M56 56 L56 50 Q56 44 64 44 Q72 44 72 50 L72 56" 
+        fill="none" 
+        stroke="#ffffff" 
+        stroke-width="3"/>
+  <circle cx="64" cy="62" r="2" fill="#0056b3"/>
+  
+  <!-- Privacy Text -->
+  <text x="64" y="90" font-family="Arial, sans-serif" font-size="8" 
+        font-weight="bold" text-anchor="middle" fill="#ffffff">
+    PRIVACY
+  </text>
+</svg>

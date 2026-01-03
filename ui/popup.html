@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrivacyShield Max</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+
+    <!-- Header: Shield Icon + Status + Power Toggle -->
+    <header class="shield-header">
+      <div class="shield-icon-wrapper">
+        <img src="icons/icon48.png" alt="PrivacyShield Max" class="shield-icon">
+        <div class="shield-pulse" id="shield-pulse"></div>
+      </div>
+      <div class="shield-status">
+        <h1 class="shield-title">PrivacyShield Max</h1>
+        <div class="protection-level">
+          <span class="level-badge" id="protection-level">Conservative</span>
+          <span class="level-progress" id="level-progress">→ Moderate (3 days)</span>
+        </div>
+      </div>
+      <label class="power-toggle" aria-label="Enable/Disable Protection">
+        <input type="checkbox" id="enabled" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </header>
+
+    <!-- Privacy Score Circle -->
+    <section class="privacy-score-section">
+      <div class="score-circle-wrapper">
+        <svg class="score-circle" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="54" class="score-bg"/>
+          <circle cx="60" cy="60" r="54" class="score-fill" id="score-arc"/>
+        </svg>
+        <div class="score-value">
+          <span class="score-number" id="score-number">92</span>
+          <span class="score-label">Privacy</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Current Page Results -->
+    <section class="results-card">
+      <div class="card-title">This Page</div>
+
+      <!-- Blocked Items Grid -->
+      <div class="blocked-grid">
+        <div class="blocked-item">
+          <span class="block-icon">🛡️</span>
+          <div class="block-info">
+            <span class="block-count" id="trackers-blocked">0</span>
+            <span class="block-label">Trackers</span>
+          </div>
+        </div>
+
+        <div class="blocked-item">
+          <span class="block-icon">🍪</span>
+          <div class="block-info">
+            <span class="block-count" id="cookies-blocked">0</span>
+            <span class="block-label">Cookies</span>
+          </div>
+        </div>
+
+        <div class="blocked-item">
+          <span class="block-icon">👁️</span>
+          <div class="block-info">
+            <span class="block-count" id="fingerprints-blocked">0</span>
+            <span class="block-label">Fingerprints</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Performance Impact -->
+    <section class="performance-card">
+      <div class="card-title">Performance Impact</div>
+      <div class="perf-grid">
+        <div class="perf-item">
+          <div class="perf-icon">⚡</div>
+          <div class="perf-data">
+            <span class="perf-value" id="speed-saved">+0ms</span>
+            <span class="perf-label">Faster</span>
+          </div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-icon">💾</div>
+          <div class="perf-data">
+            <span class="perf-value" id="data-saved">0 KB</span>
+            <span class="perf-label">Saved</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Learning Status (shown when active) -->
+    <div class="learning-notification" id="learning-notification" style="display: none;">
+      <div class="learning-icon">🧠</div>
+      <div class="learning-content">
+        <div class="learning-title" id="learning-title">New Technique Learned</div>
+        <div class="learning-message" id="learning-message">
+          Detected tracking pattern from facebook.com
+        </div>
+      </div>
+      <button class="dismiss-btn" id="dismiss-learning" aria-label="Dismiss">×</button>
+    </div>
+
+    <!-- Quick Actions -->
+    <footer class="quick-actions">
+      <button class="action-btn primary" id="whitelist-btn">
+        <span class="btn-icon">✓</span>
+        <span class="btn-text">Trust This Site</span>
+      </button>
+      <button class="action-btn secondary" id="block-element-btn">
+        <span class="btn-icon">🚫</span>
+        <span class="btn-text">Block Element</span>
+      </button>
+      <button class="action-btn tertiary" id="settings-btn" aria-label="Settings">
+        <span class="btn-icon">⚙️</span>
+      </button>
+    </footer>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

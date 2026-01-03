@@ -1,0 +1,137 @@
+[
+  {
+    "id": 4001,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||consent.cookiebot.com^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4002,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||cdn.cookielaw.org^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4003,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||consent.trustarc.com^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4004,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||privacy-mgmt.com^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4005,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||onetrust.com^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4006,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||cookie-cdn.cookiepro.com^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4007,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||quantcast.mgr.consensu.org^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4008,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||cmp.quantcast.com^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4009,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||consentmanager.net^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4010,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||usercentrics.eu^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4011,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||didomi.io^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4012,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||sirdata.io^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4013,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||cookieinformation.com^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4014,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||iubenda.com^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  },
+  {
+    "id": 4015,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||cookie-script.com^",
+      "resourceTypes": ["script", "sub_frame"]
+    }
+  }
+]

@@ -1,0 +1,81 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Shield -->
+  <defs>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#007bff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lockGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e9ecef;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.3"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Shield Shape -->
+  <path d="M64 8 L16 32 L16 72 Q16 96 64 120 Q112 96 112 72 L112 32 Z" 
+        fill="url(#shieldGradient)" 
+        filter="url(#shadow)"/>
+  
+  <!-- Inner Shield Border -->
+  <path d="M64 12 L20 34 L20 72 Q20 94 64 116 Q108 94 108 72 L108 34 Z" 
+        fill="none" 
+        stroke="#ffffff" 
+        stroke-width="1" 
+        opacity="0.3"/>
+  
+  <!-- Lock Icon -->
+  <g transform="translate(64, 52)">
+    <!-- Lock Body -->
+    <rect x="-16" y="-8" width="32" height="24" rx="4" 
+          fill="url(#lockGradient)" 
+          stroke="#0056b3" 
+          stroke-width="2"/>
+    
+    <!-- Lock Shackle -->
+    <path d="M -10 -8 L -10 -16 Q -10 -24 0 -24 Q 10 -24 10 -16 L 10 -8" 
+          fill="none" 
+          stroke="#0056b3" 
+          stroke-width="3" 
+          stroke-linecap="round"/>
+    
+    <!-- Keyhole -->
+    <circle cx="0" cy="4" r="3" fill="#0056b3"/>
+    <rect x="-2" y="4" width="4" height="6" fill="#0056b3"/>
+  </g>
+  
+  <!-- Privacy Shield Text -->
+  <text x="64" y="98" font-family="Arial, sans-serif" font-size="8" 
+        font-weight="bold" text-anchor="middle" fill="#ffffff">
+    PRIVACY
+  </text>
+  
+  <!-- Protection Indicators -->
+  <g transform="translate(32, 35)">
+    <circle cx="0" cy="0" r="3" fill="#28a745" opacity="0.8"/>
+    <path d="M -1 0 L 0 1 L 2 -1" stroke="#ffffff" stroke-width="1.5" fill="none"/>
+  </g>
+  
+  <g transform="translate(96, 35)">
+    <circle cx="0" cy="0" r="3" fill="#28a745" opacity="0.8"/>
+    <path d="M -1 0 L 0 1 L 2 -1" stroke="#ffffff" stroke-width="1.5" fill="none"/>
+  </g>
+  
+  <!-- AI Learning Indicator -->
+  <g transform="translate(64, 35)">
+    <circle cx="0" cy="0" r="4" fill="#ffc107" opacity="0.9"/>
+    <text x="0" y="1.5" font-family="Arial, sans-serif" font-size="6" 
+          font-weight="bold" text-anchor="middle" fill="#0056b3">
+      AI
+    </text>
+  </g>
+</svg>

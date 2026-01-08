@@ -154,3 +154,11 @@ DEPLOYMENT_CHECKLIST.md
 
 # Claude AI assistant files (keep private)
 .claude/
+
+# Metadata and generated files (keep private)
+_metadata/
+
+# Test and development UI files (keep private)
+test-*.html
+ui/popup-*.css
+!ui/popup.css

@@ -1,12 +1,16 @@
-// PrivacyShield - Settings Logic with Global Learning
+// PrivacyShield - Settings Logic
 
 import { MESSAGE_TYPES } from '../core/constants.js';
-import { formatNumber } from '../core/utils.js';
-import { globalLearning } from '../ai/global-browser-learning.js';
 
-// Previous stats and formatted values for animation control
-let previousStats = { trackersBlocked: 0, adsBlocked: 0, fingerprintsBlocked: 0 };
-let previousFormattedStats = { trackers: '0', ads: '0', fingerprints: '0' };
+// Format numbers for display
+function formatNumber(num) {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M';
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
+  }
+  return num.toString();
+}
 
 /**
  * Initialize settings page
@@ -17,13 +21,11 @@ async function initialize() {
   await loadStats();
   await loadLearningState();
   setupEventListeners();
-  initializeChart();
 
   // Auto-refresh stats and learning state every 2 seconds
   setInterval(async () => {
     await loadStats();
     await loadLearningState();
-    updateProgressBar();
   }, 2000);
 }
 
@@ -66,29 +68,34 @@ async function loadWhitelist() {
 }
 
 /**
- * Load learning state (now using global learning)
+ * Load learning state (now using algorithm data)
  */
 async function loadLearningState() {
   try {
-    // Get learning data from global system
-    const learningData = globalLearning.getLearningData();
+    // Get learning data from background script
+    const response = await chrome.runtime.sendMessage({
+      type: 'getLearningData'
+    });
 
-    if (learningData) {
-      // Update learning stats with global data
-      document.getElementById('safe-domains').textContent = learningData.domains || 0;
-      document.getElementById('total-requests').textContent = formatNumber(learningData.sitesAnalyzed || 0);
+    if (response.success && response.data) {
+      const learningData = response.data;
       
-      // Update progress text
-      const progressText = document.querySelector('.progress-text');
-      
-      if (learningData.accuracy > 0.4) {
-        progressText.textContent = 'Learning active';
-      } else {
-        progressText.textContent = 'Learning initializing';
+      // Update algorithm stats with real data
+      const patternsElement = document.getElementById('patterns-learned-count');
+      if (patternsElement) {
+        patternsElement.textContent = learningData.patternsLearned?.size || 0;
       }
       
-      // Update progress bar based on accuracy
-      updateProgressBar(learningData);
+      const totalRequestsElement = document.getElementById('total-requests-count');
+      if (totalRequestsElement) {
+        totalRequestsElement.textContent = formatNumber(learningData.totalRequests || 0);
+      }
+      
+      // Update learning enabled checkbox
+      const learningCheckbox = document.getElementById('learning-enabled');
+      if (learningCheckbox) {
+        learningCheckbox.checked = learningData.accuracy > 0.7;
+      }
     }
   } catch (error) {
     console.error('Failed to load learning state:', error);
@@ -100,166 +107,73 @@ async function loadLearningState() {
  */
 async function loadStats() {
   try {
-    const stats = await chrome.runtime.sendMessage({
+    const response = await chrome.runtime.sendMessage({
       type: MESSAGE_TYPES.GET_STATS
     });
 
-    if (stats) {
-      // Get current values
-      const newTrackers = stats.trackersBlocked || 0;
-      const newAds = stats.adsBlocked || 0;
-      const newFingerprints = stats.fingerprintsBlocked || 0;
+    if (response.success && response.data) {
+      const stats = response.data;
       
-      // Format values for display
-      const formattedTrackers = formatNumber(newTrackers);
-      const formattedAds = formatNumber(newAds);
-      const formattedFingerprints = formatNumber(newFingerprints);
-      
-      // Only update AND animate if formatted value actually changed
-      if (formattedTrackers !== previousFormattedStats.trackers) {
-        animateValue('trackers-blocked', newTrackers);
-        previousFormattedStats.trackers = formattedTrackers;
+      // Update stats display with correct element IDs
+      const trackersElement = document.getElementById('total-trackers');
+      if (trackersElement) {
+        trackersElement.textContent = formatNumber(stats.trackersBlocked || 0);
       }
       
-      if (formattedAds !== previousFormattedStats.ads) {
-        animateValue('ads-blocked', newAds);
-        previousFormattedStats.ads = formattedAds;
+      const adsElement = document.getElementById('total-ads');
+      if (adsElement) {
+        adsElement.textContent = formatNumber(stats.adsBlocked || 0);
       }
       
-      if (formattedFingerprints !== previousFormattedStats.fingerprints) {
-        animateValue('fingerprints-blocked', newFingerprints);
-        previousFormattedStats.fingerprints = formattedFingerprints;
+      const fingerprintsElement = document.getElementById('total-fingerprints');
+      if (fingerprintsElement) {
+        fingerprintsElement.textContent = formatNumber(stats.fingerprintsBlocked || 0);
       }
       
-      // Calculate and update privacy score
-      const privacyScore = calculatePrivacyScore(stats);
-      const currentScore = parseInt(document.getElementById('privacy-score').textContent) || 100;
-      if (privacyScore !== currentScore) {
-        animateValue('privacy-score', privacyScore);
+      const threatsElement = document.getElementById('threats-prevented');
+      if (threatsElement) {
+        const totalThreats = (stats.trackersBlocked || 0) + 
+                           (stats.adsBlocked || 0) + 
+                           (stats.fingerprintsBlocked || 0);
+        threatsElement.textContent = formatNumber(totalThreats);
       }
-      
-      // Store previous raw stats
-      previousStats = { trackersBlocked: newTrackers, adsBlocked: newAds, fingerprintsBlocked: newFingerprints };
     }
   } catch (error) {
     console.error('Failed to load stats:', error);
   }
 }
 
-/**
- * Calculate privacy score based on blocked items
- */
-function calculatePrivacyScore(stats) {
-  const trackers = stats.trackersBlocked || 0;
-  const ads = stats.adsBlocked || 0;
-  const fingerprints = stats.fingerprintsBlocked || 0;
-  
-  // Simple scoring algorithm (max 100)
-  let score = 50; // Base score
-  
-  if (trackers > 0) score += Math.min(20, trackers / 10);
-  if (ads > 0) score += Math.min(20, ads / 50);
-  if (fingerprints > 0) score += Math.min(10, fingerprints / 5);
-  
-  return Math.min(100, Math.round(score));
-}
 
 /**
- * Animate number changes (only format at start and end)
- */
-function animateValue(elementId, endValue) {
-  const element = document.getElementById(elementId);
-  const startValue = parseInt(element.textContent) || 0;
-  const duration = 500;
-  const startTime = performance.now();
-  
-  function update(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    const currentValue = Math.round(startValue + (endValue - startValue) * progress);
-    
-    // Only format at the end to prevent character-by-character animation
-    if (progress === 1) {
-      element.textContent = formatNumber(currentValue);
-    } else {
-      element.textContent = currentValue.toString();
-    }
-    
-    if (progress < 1) {
-      requestAnimationFrame(update);
-    }
-  }
-  
-  requestAnimationFrame(update);
-}
-
-/**
- * Update progress bar (now using global learning data)
- */
-function updateProgressBar(learningData) {
-  const progressFill = document.getElementById('learning-progress');
-  if (!progressFill) return;
-  
-  // Calculate progress based on accuracy improvement
-  const accuracy = learningData.accuracy || 0.4;
-  const accuracyImprovement = (accuracy - 0.4) / 0.55; // 0.4 to 0.95 is max improvement
-  const progress = Math.min(100, accuracyImprovement * 100);
-  
-  progressFill.style.width = `${progress}%`;
-}
-
-/**
- * Initialize chart
- */
-function initializeChart() {
-  const canvas = document.getElementById('trends-chart');
-  if (!canvas) return;
-  
-  const ctx = canvas.getContext('2d');
-  const width = canvas.width = canvas.offsetWidth;
-  const height = canvas.height = canvas.offsetHeight;
-  
-  // Simple line chart drawing
-  ctx.strokeStyle = '#00ff00';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  
-  // Generate sample data points
-  const points = 7; // 7 days
-  for (let i = 0; i < points; i++) {
-    const x = (i / (points - 1)) * width;
-    const y = height - (Math.random() * height * 0.8 + height * 0.1);
-    
-    if (i === 0) {
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
-    }
-  }
-  
-  ctx.stroke();
-  
-  // Add grid lines
-  ctx.strokeStyle = '#333333';
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = (i / 4) * height;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
-  }
-}
-
-/**
- * Update domain count
+ * Update domain count display
  */
 function updateDomainCount(count) {
-  const element = document.getElementById('domain-count');
-  if (element) {
-    element.textContent = `${count} DOMAIN${count !== 1 ? 'S' : ''}`;
+  const domainsText = count === 1 ? 'DOMAIN' : 'DOMAINS';
+  const countDisplay = `${count} ${domainsText}`;
+  
+  // Update or create domain count element
+  let countElement = document.getElementById('domain-count');
+  if (!countElement) {
+    countElement = document.createElement('span');
+    countElement.id = 'domain-count';
+    countElement.style.cssText = `
+      font-size: 10px;
+      font-weight: bold;
+      color: #888;
+      margin-left: 8px;
+    `;
+    
+    // Find the TRUSTED DOMAINS h2 element
+    const headings = document.querySelectorAll('h2');
+    for (const heading of headings) {
+      if (heading.textContent.includes('TRUSTED DOMAINS')) {
+        heading.appendChild(countElement);
+        break;
+      }
+    }
   }
+  
+  countElement.textContent = countDisplay;
 }
 
 /**
@@ -288,10 +202,20 @@ function setupEventListeners() {
     });
   });
 
-  // Reset learning button (now uses global learning)
+  // Learning enabled toggle
+  document.getElementById('learning-enabled').addEventListener('change', async (e) => {
+    await chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.UPDATE_SETTINGS,
+      data: { learningEnabled: e.target.checked }
+    });
+  });
+
+  // Reset learning button
   document.getElementById('reset-learning').addEventListener('click', async () => {
-    if (confirm('Reset all global learning data? This will clear all learned patterns and reset accuracy to 40%.')) {
-      await globalLearning.resetData();
+    if (confirm('Reset all pattern data? This will clear learned patterns and reset algorithm.')) {
+      await chrome.runtime.sendMessage({
+        type: 'resetLearning'
+      });
       
       // Refresh learning state display
       await loadLearningState();
@@ -314,29 +238,67 @@ function setupEventListeners() {
   // Save whitelist
   document.getElementById('save-whitelist').addEventListener('click', async () => {
     const whitelistText = document.getElementById('whitelist').value;
+    
+    // Parse and validate domains
     const domains = whitelistText.split('\n')
       .map(d => d.trim())
-      .filter(d => d.length > 0);
+      .filter(d => d.length > 0)
+      .map(d => {
+        // Clean domain format
+        if (d.startsWith('http://') || d.startsWith('https://')) {
+          try {
+            return new URL(d).hostname;
+          } catch {
+            return d;
+          }
+        }
+        return d;
+      })
+      .filter(d => d && d.length > 0); // Remove invalid entries
 
-    await chrome.runtime.sendMessage({
-      type: MESSAGE_TYPES.UPDATE_SETTINGS,
-      data: { whitelistedDomains: domains }
-    });
+    console.log('PrivacyShield: Saving whitelist domains:', domains);
 
-    updateDomainCount(domains.length);
-    
-    // Visual feedback
-    const button = document.getElementById('save-whitelist');
-    const originalText = button.textContent;
-    button.textContent = 'SAVED';
-    button.style.background = '#00ff00';
-    button.style.color = '#000000';
-    
-    setTimeout(() => {
-      button.textContent = originalText;
-      button.style.background = '';
-      button.style.color = '';
-    }, 1500);
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: MESSAGE_TYPES.UPDATE_SETTINGS,
+        data: { whitelistedDomains: domains }
+      });
+
+      if (response.success) {
+        updateDomainCount(domains.length);
+        
+        // Visual feedback
+        const button = document.getElementById('save-whitelist');
+        const originalText = button.textContent;
+        button.textContent = `SAVED (${domains.length})`;
+        button.style.background = '#00ff00';
+        button.style.color = '#000000';
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.background = '';
+          button.style.color = '';
+        }, 2000);
+      } else {
+        throw new Error('Failed to save whitelist');
+      }
+    } catch (error) {
+      console.error('Failed to save whitelist:', error);
+      alert('Failed to save whitelist. Please check your domain formats.');
+      
+      // Visual feedback for error
+      const button = document.getElementById('save-whitelist');
+      const originalText = button.textContent;
+      button.textContent = 'ERROR';
+      button.style.background = '#ff0000';
+      button.style.color = '#ffffff';
+      
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.background = '';
+        button.style.color = '';
+      }, 2000);
+    }
   });
 
   // Management buttons
@@ -440,6 +402,48 @@ function setupEventListeners() {
       .map(d => d.trim())
       .filter(d => d.length > 0);
     updateDomainCount(domains.length);
+  });
+
+  // Format whitelist on paste
+  document.getElementById('whitelist').addEventListener('paste', (e) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData('text');
+    
+    // Clean and format the pasted text
+    const domains = pastedText
+      .split(/[,\s\n]+/) // Split on commas, spaces, or newlines
+      .map(d => d.trim())
+      .filter(d => d.length > 0)
+      .map(d => {
+        // Remove http/https if present
+        if (d.startsWith('http://') || d.startsWith('https://')) {
+          try {
+            return new URL(d).hostname;
+          } catch {
+            return d.replace(/^https?:\/\//, '');
+          }
+        }
+        return d;
+      });
+    
+    // Insert formatted domains
+    const textarea = e.target;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentValue = textarea.value;
+    
+    const newValue = currentValue.substring(0, start) + 
+                    domains.join('\n') + 
+                    currentValue.substring(end);
+    
+    textarea.value = newValue;
+    textarea.selectionStart = textarea.selectionEnd = start + domains.join('\n').length;
+    
+    // Update domain count
+    const allDomains = textarea.value.split('\n')
+      .map(d => d.trim())
+      .filter(d => d.length > 0);
+    updateDomainCount(allDomains.length);
   });
 }
 

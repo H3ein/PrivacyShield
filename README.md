@@ -4,8 +4,8 @@
 
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-green.svg)](https://chrome.google.com/webstore)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://github.com/yourusername/privacyshield)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/yourusername/privacyshield)
+[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://github.com/H3ein/PrivacyShield)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/H3ein/PrivacyShield)
 
 ## 🎯 Why PrivacyShield?
 
@@ -108,8 +108,8 @@ privacyshield/
 ### Setup
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/privacyshield.git
-cd privacyshield
+git clone https://github.com/H3ein/PrivacyShield.git
+cd PrivacyShield
 
 # Install dependencies
 npm install
@@ -236,14 +236,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support & Contact
 
-- **🐛 Issues**: [GitHub Issues](https://github.com/yourusername/privacyshield/issues)
-- **💬 Discussions**: [GitHub Discussions](https://github.com/yourusername/privacyshield/discussions)
+- **🐛 Issues**: [GitHub Issues](https://github.com/H3ein/PrivacyShield/issues)
+- **💬 Discussions**: [GitHub Discussions](https://github.com/H3ein/PrivacyShield/discussions)
 - **📧 Email**: privacyshield@example.com
 - **🐦 Twitter**: [@PrivacyShieldExt](https://twitter.com/PrivacyShieldExt)
 
 ## 🌟 Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/privacyshield&type=Date)](https://star-history.com/#yourusername/privacyshield&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=H3ein/PrivacyShield&type=Date)](https://star-history.com/#H3ein/PrivacyShield&Date)
 
 ---
 

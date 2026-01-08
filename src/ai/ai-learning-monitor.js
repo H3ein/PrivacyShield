@@ -432,22 +432,28 @@ class AILearningMonitor {
    */
   setupRealTimeTracking() {
     // Track page navigation
-    chrome.webNavigation.onCompleted.addListener((details) => {
-      if (details.frameId === 0) {
-        this.sessionStats.pagesAnalyzed++;
-        
-        this.logLearningActivity({
-          type: 'page_analyzed',
-          domain: new URL(details.url).hostname,
-          details: {
-            url: this.sanitizeUrl(details.url),
-            loadTime: details.timeStamp || 0
-          },
-          userVisible: false,
-          category: 'navigation'
+    try {
+      if (chrome.webNavigation && chrome.webNavigation.onCompleted) {
+        chrome.webNavigation.onCompleted.addListener((details) => {
+          if (details.frameId === 0) {
+            this.sessionStats.pagesAnalyzed++;
+            
+            this.logLearningActivity({
+              type: 'page_analyzed',
+              domain: new URL(details.url).hostname,
+              details: {
+                url: this.sanitizeUrl(details.url),
+                loadTime: details.timeStamp || 0
+              },
+              userVisible: false,
+              category: 'navigation'
+            });
+          }
         });
       }
-    });
+    } catch (error) {
+      console.warn('AI Learning Monitor: webNavigation not available:', error);
+    }
   }
 
   /**

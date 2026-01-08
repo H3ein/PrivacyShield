@@ -105,7 +105,7 @@ class ProductionBuilder {
     const uiFiles = [
       'ui/popup.html',
       'ui/popup.css',
-      'ui/settings.html',
+      'ui/settings-new.html',
       'ui/settings.css'
     ];
 
@@ -190,7 +190,7 @@ class ProductionBuilder {
       'background.js',
       'content.js',
       'ui/popup.html',
-      'ui/settings.html',
+      'ui/settings-new.html',
       'icons/icon16.png',
       'icons/icon128.png'
     ];

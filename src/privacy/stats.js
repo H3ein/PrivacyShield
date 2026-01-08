@@ -62,6 +62,18 @@ export async function resetStats() {
 }
 
 /**
+ * Reset individual stat
+ * @param {string} stat - Stat name to reset
+ */
+export async function resetStat(stat) {
+  if (Object.prototype.hasOwnProperty.call(stats, stat)) {
+    stats[stat] = 0;
+    await save();
+    console.log('PrivacyShield: Stat reset:', stat);
+  }
+}
+
+/**
  * Debounced save to reduce storage operations
  */
 function debouncedSave() {
@@ -106,5 +118,6 @@ export default {
   initialize,
   getStats,
   incrementStat,
-  resetStats
+  resetStats,
+  resetStat
 };

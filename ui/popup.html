@@ -7,69 +7,117 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <!-- Header -->
-  <header>
-    <div class="brand">PRIVACYSHIELD</div>
-    <div class="toggle-container">
-      <input type="checkbox" id="enabled" checked>
-      <label for="enabled" class="toggle-switch">
-        <span class="toggle-indicator"></span>
-      </label>
-    </div>
-  </header>
-
-  <!-- Main Stats Grid -->
-  <main class="stats-grid">
-    <div class="stat-cell">
-      <div class="stat-number" id="trackers-blocked">0</div>
-      <div class="stat-label">TRACKERS</div>
-    </div>
-    <div class="stat-cell">
-      <div class="stat-number" id="ads-blocked">0</div>
-      <div class="stat-label">ADS</div>
-    </div>
-    <div class="stat-cell">
-      <div class="stat-number" id="fingerprints-blocked">0</div>
-      <div class="stat-label">FINGER</div>
-    </div>
-    <div class="stat-cell">
-      <div class="stat-number" id="privacy-score">100</div>
-      <div class="stat-label">PRIVACY SCORE</div>
-    </div>
-  </main>
-
-  <!-- AI Learning -->
-  <section class="ai-learning">
-    <div class="ai-header">
-      <span class="ai-icon">🤖</span>
-      <span class="ai-title">AI PROTECTION</span>
-    </div>
+  <!-- Main Container -->
+  <div class="popup-container">
     
-    <div class="accuracy-display">
-      <div class="current-tab">
-        <span class="accuracy-label">THIS TAB</span>
-        <div class="accuracy-value" id="tab-accuracy">95%</div>
-        <span class="accuracy-status" id="tab-status">Optimal</span>
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-icon">⬛</div>
+        <span class="brand-text">PRIVACYSHIELD</span>
       </div>
+      <div class="toggle-container">
+        <input type="checkbox" id="enabled" checked>
+        <label for="enabled" class="toggle-switch">
+          <div class="toggle-indicator"></div>
+        </label>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
       
-      <div class="global-accuracy">
-        <span class="accuracy-label">GLOBAL</span>
-        <div class="accuracy-value" id="global-accuracy">87%</div>
-        <span class="learning-info" id="global-info">From 1,247 sites</span>
-      </div>
-    </div>
-    
-    <div class="learning-status" id="learning-status">
-      <span class="status-icon" id="status-icon">🧠</span>
-      <span class="status-text" id="status-text">Learning active</span>
-    </div>
-  </section>
+      <!-- Privacy Score Section -->
+      <section class="privacy-score-section">
+        <div class="score-header">
+          <div class="score-title">
+            <div class="score-icon">◆</div>
+            <span>PRIVACY SCORE</span>
+          </div>
+          <div class="algorithm-info" id="algorithm-toggle">
+            <span class="algorithm-text">ALGORITHM</span>
+            <div class="algorithm-indicator"></div>
+          </div>
+        </div>
+        
+        <div class="score-display">
+          <div class="score-number" id="privacy-score">100</div>
+          <div class="score-max">/100</div>
+        </div>
+        
+        <div class="score-bar-container">
+          <div class="score-bar" id="score-bar">
+            <div class="score-fill" id="score-fill"></div>
+          </div>
+        </div>
+        
+        <div class="score-status" id="score-status">MAXIMUM PROTECTION</div>
+      </section>
 
-  <!-- Action Controls -->
-  <footer class="controls">
-    <button id="whitelist-btn" class="control-btn primary" data-shortcut="T">TRUST SITE</button>
-    <button id="settings-btn" class="control-btn secondary" data-shortcut="S">SETTINGS</button>
-  </footer>
+      <!-- Algorithm Details (Hidden by default) -->
+      <section class="algorithm-section" id="algorithm-section" style="display: none;">
+        <div class="algorithm-header">
+          <span>PROTECTION ALGORITHM</span>
+          <div class="version-badge">v3.0</div>
+        </div>
+        
+        <div class="algorithm-metrics">
+          <div class="metric-row">
+            <span class="metric-label">PATTERN MATCHING</span>
+            <span class="metric-value" id="pattern-accuracy">98%</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">RULE COVERAGE</span>
+            <span class="metric-value" id="rule-coverage">87%</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">FALSE POSITIVE RATE</span>
+            <span class="metric-value" id="fp-rate">0.2%</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">DETECTION SPEED</span>
+            <span class="metric-value" id="detection-speed">12ms</span>
+          </div>
+        </div>
+        
+        <div class="algorithm-status">
+          <div class="status-indicator active"></div>
+          <span>REAL-TIME ANALYSIS ACTIVE</span>
+        </div>
+      </section>
+
+      <!-- Threat Summary -->
+      <section class="threat-summary">
+        <div class="threat-grid">
+          <div class="threat-item">
+            <div class="threat-count" id="trackers-blocked">0</div>
+            <div class="threat-label">TRACKERS</div>
+          </div>
+          <div class="threat-item">
+            <div class="threat-count" id="ads-blocked">0</div>
+            <div class="threat-label">ADS</div>
+          </div>
+          <div class="threat-item">
+            <div class="threat-count" id="fingerprints-blocked">0</div>
+            <div class="threat-label">FINGERPRINTS</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer Controls -->
+    <footer class="footer">
+      <button class="control-btn primary" id="whitelist-btn">
+        <span class="btn-text">TRUST SITE</span>
+        <div class="btn-indicator"></div>
+      </button>
+      <button class="control-btn secondary" id="settings-btn">
+        <span class="btn-text">SETTINGS</span>
+      </button>
+    </footer>
+
+  </div>
 
   <script src="../src/ui/popup.js" type="module"></script>
 </body>

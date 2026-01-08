@@ -1051,6 +1051,8 @@ export const MESSAGE_TYPES = {
   
   // Whitelist
   WHITELIST_DOMAIN: 'whitelistDomain',
+  ADD_TO_WHITELIST: 'addToWhitelist',
+  REMOVE_FROM_WHITELIST: 'removeFromWhitelist',
   
   // Stats
   GET_STATS: 'getStats',

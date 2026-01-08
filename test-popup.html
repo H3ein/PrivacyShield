@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test PrivacyShield Popup</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #00ff00;
+            border: 2px solid black;
+            padding: 10px 20px;
+            font-family: monospace;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: black;
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <h1>PrivacyShield Popup Test</h1>
+    
+    <div class="test-section">
+        <h2>Test the Popup</h2>
+        <p>Click the button below to open the PrivacyShield popup in a new window.</p>
+        <button onclick="openPopup()">Open Popup Test</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Whitelist Functionality</h2>
+        <p>To test the trust site button:</p>
+        <ol>
+            <li>Install the extension in Chrome</li>
+            <li>Navigate to any website (not chrome:// pages)</li>
+            <li>Click the PrivacyShield extension icon</li>
+            <li>Click the "TRUST SITE" button</li>
+            <li>Button should change to "TRUSTED" and turn orange</li>
+            <li>Click again to remove from whitelist</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>Debug Console</h2>
+        <p>Open Chrome DevTools and check the console for:</p>
+        <ul>
+            <li>"PrivacyShield: Toggling whitelist for domain: example.com"</li>
+            <li>"PrivacyShield: Added to whitelist: example.com"</li>
+            <li>Any error messages if something fails</li>
+        </ul>
+    </div>
+
+    <script>
+        function openPopup() {
+            const popup = window.open('popup.html', 'privacyshield', 'width=380,height=580');
+            if (!popup) {
+                alert('Popup blocked! Please allow popups for this site.');
+            }
+        }
+    </script>
+</body>
+</html>

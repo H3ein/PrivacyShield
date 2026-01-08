@@ -1,6 +1,7 @@
 {
   "name": "privacyshield-extension",
   "version": "3.0.0",
+  "type": "module",
   "description": "Brutalist minimal privacy protection - block trackers, ads, and fingerprinting",
   "scripts": {
     "test": "jest",
@@ -8,7 +9,7 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint src/ tests/",
     "lint:fix": "eslint src/ tests/ --fix",
-    "build": "node build.js",
+    "build": "node build.cjs",
     "validate": "node -e \"console.log('✅ PrivacyShield extension validated for production')\"",
     "dev": "echo 'Extension ready for development - load in Chrome'"
   },

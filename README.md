@@ -204,27 +204,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - **📚 Documentation**
 - **🧪 Test coverage**
 
-## 📋 Roadmap
-
-### Version 3.1 (Q1 2025)
-- [ ] Custom rule builder
-- [ ] Advanced statistics dashboard
-- [ ] Performance monitoring
-- [ ] Enhanced fingerprint protection
-
-### Version 3.2 (Q2 2025)
-- [ ] Firefox support (MV2)
-- [ ] Safari support (WebExtensions)
-- [ ] Mobile browser support
-- [ ] Enterprise management
-
-### Future Versions
-- [ ] AI-powered threat detection
-- [ ] Real-time collaboration
-- [ ] Advanced reporting
-- [ ] Premium features
-
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
@@ -238,8 +218,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **🐛 Issues**: [GitHub Issues](https://github.com/H3ein/PrivacyShield/issues)
 - **💬 Discussions**: [GitHub Discussions](https://github.com/H3ein/PrivacyShield/discussions)
-- **📧 Email**: privacyshield@example.com
-- **🐦 Twitter**: [@PrivacyShieldExt](https://twitter.com/PrivacyShieldExt)
 
 ## 🌟 Star History
 

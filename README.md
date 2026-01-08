@@ -250,3 +250,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **🛡️ PrivacyShield - Brutalist Privacy Protection**
 
 *Protect your privacy, brutally simple.*
+=======
+# PrivacyShield
+>>>>>>> a57d99dc59482777823c485e82ded0796c3a5321

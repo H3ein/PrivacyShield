@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrivacyShield Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <header>
+    <h1>PRIVACYSHIELD</h1>
+    <span class="subtitle">SETTINGS</span>
+  </header>
+
+  <main>
+    <!-- Core Protection -->
+    <section>
+      <h2>CORE PROTECTION</h2>
+      <div class="setting-group">
+        <label class="setting-item">
+          <input type="checkbox" id="block-ads" checked>
+          <span class="setting-label">BLOCK ADS</span>
+        </label>
+        <label class="setting-item">
+          <input type="checkbox" id="block-trackers" checked>
+          <span class="setting-label">BLOCK TRACKERS</span>
+        </label>
+        <label class="setting-item">
+          <input type="checkbox" id="fingerprint-protection" checked>
+          <span class="setting-label">FINGERPRINT PROTECTION</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- AI Learning -->
+    <section>
+      <h2>AI LEARNING</h2>
+      <div class="setting-group">
+        <label class="setting-item">
+          <input type="checkbox" id="learning-enabled" checked>
+          <span class="setting-label">SMART LEARNING</span>
+        </label>
+        <div class="learning-stats">
+          <div class="learning-stat">
+            <span class="learning-value" id="safe-domains-count">0</span>
+            <span class="learning-label">SAFE DOMAINS</span>
+          </div>
+          <div class="learning-stat">
+            <span class="learning-value" id="total-requests-count">0</span>
+            <span class="learning-label">REQUESTS</span>
+          </div>
+        </div>
+        <button class="action-btn" id="reset-learning">RESET LEARNING</button>
+      </div>
+    </section>
+
+    <!-- Statistics -->
+    <section class="full-width">
+      <h2>STATISTICS</h2>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-value" id="total-trackers">0</span>
+          <span class="stat-label">TRACKERS</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="total-ads">0</span>
+          <span class="stat-label">ADS</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="total-fingerprints">0</span>
+          <span class="stat-label">FINGER</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="threats-prevented">0</span>
+          <span class="stat-label">THREATS</span>
+        </div>
+      </div>
+      <button class="action-btn" id="reset-stats">RESET STATS</button>
+    </section>
+
+    <!-- Whitelist -->
+    <section class="full-width">
+      <h2>TRUSTED DOMAINS</h2>
+      <div class="whitelist-section">
+        <textarea id="whitelist" rows="4" placeholder="example.com&#10;trusted-site.com"></textarea>
+        <button class="action-btn" id="save-whitelist">SAVE WHITELIST</button>
+      </div>
+    </section>
+
+    <!-- Management -->
+    <section class="full-width">
+      <h2>MANAGEMENT</h2>
+      <div class="action-grid">
+        <button class="action-btn" id="export-settings">EXPORT</button>
+        <button class="action-btn" id="import-settings">IMPORT</button>
+        <button class="action-btn warning" id="reset-all">RESET ALL</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>PRIVACYSHIELD v3.0.0</span>
+  </footer>
+
+  <script src="../src/ui/settings.js" type="module"></script>
+</body>
+</html>

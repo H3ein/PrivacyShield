@@ -6,6 +6,10 @@ let stats = {
   fingerprintsBlocked: 0
 };
 
+// Debounced save to reduce storage operations
+let saveTimeout = null;
+const SAVE_DELAY = 500; // Save at most twice per second for better reliability
+
 /**
  * Initialize stats from storage
  */
@@ -38,9 +42,9 @@ export function getStats() {
  * @param {number} amount - Amount to increment
  */
 export function incrementStat(stat, amount = 1) {
-  if (stats.hasOwnProperty(stat)) {
+  if (Object.prototype.hasOwnProperty.call(stats, stat)) {
     stats[stat] += amount;
-    save();
+    debouncedSave();
   }
 }
 
@@ -55,6 +59,18 @@ export async function resetStats() {
   };
   await save();
   console.log('PrivacyShield: Stats reset');
+}
+
+/**
+ * Debounced save to reduce storage operations
+ */
+function debouncedSave() {
+  if (saveTimeout) {
+    clearTimeout(saveTimeout);
+  }
+  saveTimeout = setTimeout(() => {
+    save();
+  }, SAVE_DELAY);
 }
 
 /**

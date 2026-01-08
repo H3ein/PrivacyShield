@@ -37,16 +37,29 @@ export function extractDomain(hostname) {
 }
 
 /**
- * Format number with commas
+ * Format number with K, M, B suffixes for large numbers
  * @param {number} num - Number to format
- * @returns {string} - Formatted number
+ * @returns {string} - Formatted number with suffixes
  */
 export function formatNumber(num) {
+  if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'B';
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  return num.toString();
+}
+
+/**
+ * Format number with commas (for detailed display)
+ * @param {number} num - Number to format
+ * @returns {string} - Formatted number with commas
+ */
+export function formatNumberWithCommas(num) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 export default {
   extractHostname,
   extractDomain,
-  formatNumber
+  formatNumber,
+  formatNumberWithCommas
 };

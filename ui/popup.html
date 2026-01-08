@@ -7,39 +7,68 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <!-- Header: Name + Toggle -->
+  <!-- Header -->
   <header>
-    <h1>PRIVACYSHIELD</h1>
-    <label class="toggle">
+    <div class="brand">PRIVACYSHIELD</div>
+    <div class="toggle-container">
       <input type="checkbox" id="enabled" checked>
-      <span id="toggle-text">ON</span>
-    </label>
+      <label for="enabled" class="toggle-switch">
+        <span class="toggle-indicator"></span>
+      </label>
+    </div>
   </header>
 
-  <!-- Stats Grid -->
-  <main>
-    <div class="stat">
-      <span class="stat-value" id="trackers-blocked">0</span>
-      <span class="stat-label">TRACKERS</span>
+  <!-- Main Stats Grid -->
+  <main class="stats-grid">
+    <div class="stat-cell">
+      <div class="stat-number" id="trackers-blocked">0</div>
+      <div class="stat-label">TRACKERS</div>
     </div>
-    <div class="stat">
-      <span class="stat-value" id="ads-blocked">0</span>
-      <span class="stat-label">ADS</span>
+    <div class="stat-cell">
+      <div class="stat-number" id="ads-blocked">0</div>
+      <div class="stat-label">ADS</div>
     </div>
-    <div class="stat">
-      <span class="stat-value" id="fingerprints-blocked">0</span>
-      <span class="stat-label">FINGERPRINTS</span>
+    <div class="stat-cell">
+      <div class="stat-number" id="fingerprints-blocked">0</div>
+      <div class="stat-label">FINGER</div>
     </div>
-    <div class="stat">
-      <span class="stat-value" id="privacy-score">100</span>
-      <span class="stat-label">PRIVACY</span>
+    <div class="stat-cell">
+      <div class="stat-number" id="privacy-score">100</div>
+      <div class="stat-label">PRIVACY SCORE</div>
     </div>
   </main>
 
-  <!-- Actions -->
-  <footer>
-    <button id="whitelist-btn">TRUST SITE</button>
-    <button id="settings-btn">SETTINGS</button>
+  <!-- AI Learning -->
+  <section class="ai-learning">
+    <div class="ai-header">
+      <span class="ai-icon">🤖</span>
+      <span class="ai-title">AI PROTECTION</span>
+    </div>
+    
+    <div class="accuracy-display">
+      <div class="current-tab">
+        <span class="accuracy-label">THIS TAB</span>
+        <div class="accuracy-value" id="tab-accuracy">95%</div>
+        <span class="accuracy-status" id="tab-status">Optimal</span>
+      </div>
+      
+      <div class="global-accuracy">
+        <span class="accuracy-label">GLOBAL</span>
+        <div class="accuracy-value" id="global-accuracy">87%</div>
+        <span class="learning-info" id="global-info">From 1,247 sites</span>
+      </div>
+    </div>
+    
+    <div class="learning-status" id="learning-status">
+      <span class="status-icon" id="status-icon">🧠</span>
+      <span class="status-text" id="status-text">Learning active</span>
+    </div>
+  </section>
+
+  <!-- Action Controls -->
+  <footer class="controls">
+    <button id="whitelist-btn" class="control-btn primary" data-shortcut="T">TRUST SITE</button>
+    <button id="settings-btn" class="control-btn secondary" data-shortcut="S">SETTINGS</button>
   </footer>
 
   <script src="../src/ui/popup.js" type="module"></script>

@@ -766,21 +766,5 @@
         "xmlhttprequest"
       ]
     }
-  },
-  {
-    "id": 49,
-    "priority": 1,
-    "action": {
-      "type": "block"
-    },
-    "condition": {
-      "urlFilter": "||youtube.com^",
-      "resourceTypes": [
-        "script",
-        "image",
-        "sub_frame",
-        "xmlhttprequest"
-      ]
-    }
   }
 ]

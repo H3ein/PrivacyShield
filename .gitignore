@@ -145,3 +145,9 @@ config.local.js
 .cache/
 .parcel-cache/
 .eslintcache
+
+# Internal documentation (keep private)
+UI_DESIGN_DOCUMENTATION.md
+PRODUCTION_READINESS_REPORT.md
+SECURITY_AUDIT_FINAL.md
+DEPLOYMENT_CHECKLIST.md

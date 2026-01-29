@@ -80,10 +80,7 @@ class ProductionBuilder {
       'src/privacy/tracker-blocker.js',
       'src/ui/popup.js',
       'src/ui/settings.js',
-      'src/ai/adaptive-learning-engine.js',
-      'src/ai/ai-learning-monitor.js',
-      'src/ai/behavioral-analyzer.js',
-      'src/ai/script-monitor.js'
+      'src/ai/ai-learning-monitor.js'
     ];
 
     for (const file of coreFiles) {

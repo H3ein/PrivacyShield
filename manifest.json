@@ -78,10 +78,5 @@
     }
   },
 
-  "web_accessible_resources": [
-    {
-      "resources": [],
-      "matches": ["<all_urls>"]
-    }
-  ]
+  "web_accessible_resources": []
 }

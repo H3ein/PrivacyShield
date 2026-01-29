@@ -298,44 +298,6 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 // Message handling
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   ErrorHandler.safeExecute('onMessage', async () => {
-    // Debug functionality for testing
-    if (message.type === 'debugIncrementStats') {
-      await stats.incrementStat('trackersBlocked');
-      await stats.incrementStat('adsBlocked');
-      await stats.incrementStat('fingerprintsBlocked');
-      sendResponse({ success: true, message: 'Debug stats incremented' });
-      return;
-    }
-    
-    if (message.type === 'testBlocking') {
-      console.log('PrivacyShield: Testing blocking patterns...');
-      
-      // Test tracker patterns
-      const testUrls = [
-        'https://google-analytics.com/ga.js',
-        'https://facebook.com/tracker.js',
-        'https://doubleclick.net/ad.js',
-        'https://ads.google.com/ads',
-        'https://fingerprintjs.com/fp.js'
-      ];
-      
-      for (const url of testUrls) {
-        const domain = extractDomain(url);
-        const isTracker = CONSERVATIVE_TRACKER_PATTERNS.some(pattern => url.includes(pattern));
-        const isAd = CONSERVATIVE_AD_PATTERNS.some(pattern => url.includes(pattern));
-        const isFingerprint = url.includes('fingerprint');
-        
-        console.log(`Testing ${url}: Tracker=${isTracker}, Ad=${isAd}, Fingerprint=${isFingerprint}`);
-        
-        if (isTracker) await stats.incrementStat('trackersBlocked');
-        if (isAd) await stats.incrementStat('adsBlocked');
-        if (isFingerprint) await stats.incrementStat('fingerprintsBlocked');
-      }
-      
-      sendResponse({ success: true, message: 'Blocking patterns tested' });
-      return;
-    }
-    
     const { type, data } = message;
     
     switch (type) {

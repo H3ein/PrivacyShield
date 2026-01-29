@@ -21,7 +21,7 @@ module.exports = {
   },
   
   // Module name mapping for Chrome APIs
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
     '^.+.(css|less|scss|sass)$': 'identity-obj-proxy'
   },

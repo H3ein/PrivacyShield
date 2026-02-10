@@ -7,110 +7,133 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <!-- Main Container -->
   <div class="popup-container">
-    
-    <!-- Header -->
+
+    <!-- Header: 40px -->
     <header class="header">
       <div class="brand">
-        <div class="brand-icon">⬛</div>
+        <svg class="brand-icon" width="20" height="22" viewBox="0 0 20 22" fill="none">
+          <path d="M10 0L0 4v6c0 6.075 4.25 11.425 10 12.5 5.75-1.075 10-6.425 10-12.5V4L10 0z" fill="currentColor"/>
+          <path d="M10 2L2 5.2v4.8c0 5.075 3.5 9.575 8 10.5 4.5-.925 8-5.425 8-10.5V5.2L10 2z" fill="#000"/>
+          <path d="M10 5L5 7v4c0 3.3 2.1 6.2 5 7 2.9-.8 5-3.7 5-7V7l-5-2z" fill="currentColor"/>
+        </svg>
         <span class="brand-text">PRIVACYSHIELD</span>
+        <span class="brand-version">v3.1</span>
       </div>
-      <div class="toggle-container">
-        <input type="checkbox" id="enabled" checked>
-        <label for="enabled" class="toggle-switch">
-          <div class="toggle-indicator"></div>
-        </label>
-      </div>
+      <button class="power-btn" id="power-btn" aria-label="Toggle protection">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="2"/>
+          <line x1="9" y1="2" x2="9" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <!-- Hidden checkbox to preserve element ID for popup.js -->
+      <input type="checkbox" id="enabled" checked style="display:none">
     </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      
-      <!-- Privacy Score Section -->
-      <section class="privacy-score-section">
-        <div class="score-header">
-          <div class="score-title">
-            <div class="score-icon">◆</div>
-            <span>PRIVACY SCORE</span>
-          </div>
-          <div class="algorithm-info" id="algorithm-toggle">
-            <span class="algorithm-text">ALGORITHM</span>
-            <div class="algorithm-indicator"></div>
-          </div>
+    <!-- Score Hero: SVG Arc Gauge -->
+    <section class="score-hero">
+      <div class="arc-gauge-container">
+        <svg class="arc-gauge" viewBox="0 0 120 80" width="160" height="107">
+          <!-- Background arc -->
+          <path
+            d="M10,70 A50,50 0 0,1 110,70"
+            fill="none"
+            stroke="#333"
+            stroke-width="8"
+            stroke-linecap="round"
+          />
+          <!-- Score arc (filled portion) -->
+          <path
+            id="score-arc"
+            d="M10,70 A50,50 0 0,1 110,70"
+            fill="none"
+            stroke="var(--score-color, #00ff00)"
+            stroke-width="8"
+            stroke-linecap="round"
+            stroke-dasharray="157 157"
+            stroke-dashoffset="0"
+          />
+        </svg>
+        <div class="arc-score-overlay">
+          <span class="score-number" id="privacy-score">100</span>
+          <span class="score-max">/100</span>
         </div>
-        
-        <div class="score-display">
-          <div class="score-number" id="privacy-score">100</div>
-          <div class="score-max">/100</div>
-        </div>
-        
-        <div class="score-bar-container">
-          <div class="score-bar" id="score-bar">
-            <div class="score-fill" id="score-fill"></div>
-          </div>
-        </div>
-        
-        <div class="score-status" id="score-status">MAXIMUM PROTECTION</div>
-      </section>
+      </div>
+      <div class="score-status" id="score-status">MAXIMUM PROTECTION</div>
+    </section>
 
-      <!-- Algorithm Details (Hidden by default) -->
-      <section class="algorithm-section" id="algorithm-section" style="display: none;">
-        <div class="algorithm-header">
-          <span>PROTECTION ALGORITHM</span>
-          <div class="version-badge">v3.0</div>
-        </div>
-        
-        <div class="algorithm-metrics">
-          <div class="metric-row">
-            <span class="metric-label">PATTERN MATCHING</span>
-            <span class="metric-value" id="pattern-accuracy">98%</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">RULE COVERAGE</span>
-            <span class="metric-value" id="rule-coverage">87%</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">FALSE POSITIVE RATE</span>
-            <span class="metric-value" id="fp-rate">0.2%</span>
-          </div>
-          <div class="metric-row">
-            <span class="metric-label">DETECTION SPEED</span>
-            <span class="metric-value" id="detection-speed">12ms</span>
-          </div>
-        </div>
-        
-        <div class="algorithm-status">
-          <div class="status-indicator active"></div>
-          <span>REAL-TIME ANALYSIS ACTIVE</span>
-        </div>
-      </section>
+    <!-- Threat Bar: always horizontal flex -->
+    <section class="threat-bar">
+      <div class="threat-cell">
+        <div class="threat-count" id="trackers-blocked">0</div>
+        <div class="threat-label">TRACKERS</div>
+      </div>
+      <div class="threat-divider"></div>
+      <div class="threat-cell">
+        <div class="threat-count" id="ads-blocked">0</div>
+        <div class="threat-label">ADS</div>
+      </div>
+      <div class="threat-divider"></div>
+      <div class="threat-cell">
+        <div class="threat-count" id="fingerprints-blocked">0</div>
+        <div class="threat-label">PRINTS</div>
+      </div>
+    </section>
 
-      <!-- Threat Summary -->
-      <section class="threat-summary">
-        <div class="threat-grid">
-          <div class="threat-item">
-            <div class="threat-count" id="trackers-blocked">0</div>
-            <div class="threat-label">TRACKERS</div>
-          </div>
-          <div class="threat-item">
-            <div class="threat-count" id="ads-blocked">0</div>
-            <div class="threat-label">ADS</div>
-          </div>
-          <div class="threat-item">
-            <div class="threat-count" id="fingerprints-blocked">0</div>
-            <div class="threat-label">FINGERPRINTS</div>
-          </div>
-        </div>
-      </section>
+    <!-- Stats Bar: inline preview + expandable detail -->
+    <section class="algorithm-bar" id="algorithm-toggle">
+      <div class="alg-preview">
+        <span class="alg-icon">[*]</span>
+        <span class="alg-label">STATS</span>
+        <span class="alg-metric">BLOCKED:<span id="stat-total-blocked">0</span></span>
+        <span class="alg-metric">DOMAINS:<span id="stat-domains-seen">0</span></span>
+        <span class="alg-metric">RATE:<span id="stat-block-rate">0</span>%</span>
+        <span class="alg-chevron" id="alg-chevron">+</span>
+      </div>
+    </section>
 
-    </main>
+    <!-- Stats Detail (expandable) -->
+    <section class="algorithm-detail" id="algorithm-section" style="display: none;">
+      <div class="alg-detail-grid">
+        <div class="alg-detail-item">
+          <span class="alg-detail-label">DOMAINS ANALYZED</span>
+          <div class="alg-detail-bar-track">
+            <div class="alg-detail-bar-fill" id="domains-bar" style="width: 0%"></div>
+          </div>
+          <span class="alg-detail-value" id="stat-domains-detail">0</span>
+        </div>
+        <div class="alg-detail-item">
+          <span class="alg-detail-label">TOTAL BLOCKED</span>
+          <div class="alg-detail-bar-track">
+            <div class="alg-detail-bar-fill" id="blocked-bar" style="width: 0%"></div>
+          </div>
+          <span class="alg-detail-value" id="stat-blocked-detail">0</span>
+        </div>
+        <div class="alg-detail-item">
+          <span class="alg-detail-label">BLOCK RATE</span>
+          <div class="alg-detail-bar-track">
+            <div class="alg-detail-bar-fill" id="rate-bar" style="width: 0%"></div>
+          </div>
+          <span class="alg-detail-value" id="stat-rate-detail">0%</span>
+        </div>
+        <div class="alg-detail-item">
+          <span class="alg-detail-label">TOTAL REQUESTS</span>
+          <div class="alg-detail-bar-track">
+            <div class="alg-detail-bar-fill" id="requests-bar" style="width: 0%"></div>
+          </div>
+          <span class="alg-detail-value" id="stat-requests-detail">0</span>
+        </div>
+      </div>
+      <div class="alg-status-row">
+        <div class="alg-status-dot"></div>
+        <span>STATIC PATTERN MATCHING ACTIVE</span>
+      </div>
+    </section>
 
     <!-- Footer Controls -->
     <footer class="footer">
       <button class="control-btn primary" id="whitelist-btn">
         <span class="btn-text">TRUST SITE</span>
-        <div class="btn-indicator"></div>
       </button>
       <button class="control-btn secondary" id="settings-btn">
         <span class="btn-text">SETTINGS</span>

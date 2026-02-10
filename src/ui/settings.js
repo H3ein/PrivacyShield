@@ -34,9 +34,11 @@ async function initialize() {
  */
 async function loadSettings() {
   try {
-    const settings = await chrome.runtime.sendMessage({
+    const response = await chrome.runtime.sendMessage({
       type: MESSAGE_TYPES.GET_SETTINGS
     });
+
+    const settings = response?.success ? response.data : response;
 
     if (settings) {
       document.getElementById('block-ads').checked = settings.blockAds !== false;
@@ -53,9 +55,11 @@ async function loadSettings() {
  */
 async function loadWhitelist() {
   try {
-    const settings = await chrome.runtime.sendMessage({
+    const response = await chrome.runtime.sendMessage({
       type: MESSAGE_TYPES.GET_SETTINGS
     });
+
+    const settings = response?.success ? response.data : response;
 
     if (settings && settings.whitelistedDomains) {
       const whitelistText = settings.whitelistedDomains.join('\n');
@@ -72,29 +76,32 @@ async function loadWhitelist() {
  */
 async function loadLearningState() {
   try {
-    // Get learning data from background script
-    const response = await chrome.runtime.sendMessage({
-      type: 'getLearningData'
-    });
+    // Get learning data and settings from background script in parallel
+    const [learningResponse, settingsResponse] = await Promise.all([
+      chrome.runtime.sendMessage({ type: 'getLearningData' }),
+      chrome.runtime.sendMessage({ type: MESSAGE_TYPES.GET_SETTINGS })
+    ]);
 
-    if (response.success && response.data) {
-      const learningData = response.data;
-      
-      // Update algorithm stats with real data
+    if (learningResponse.success && learningResponse.data) {
+      const learningData = learningResponse.data;
+
+      // Show actual unique blocked domains count (not category count)
       const patternsElement = document.getElementById('patterns-learned-count');
       if (patternsElement) {
-        patternsElement.textContent = learningData.patternsLearned?.size || 0;
+        patternsElement.textContent = formatNumber(learningData.domainPatternsCount || 0);
       }
-      
+
       const totalRequestsElement = document.getElementById('total-requests-count');
       if (totalRequestsElement) {
         totalRequestsElement.textContent = formatNumber(learningData.totalRequests || 0);
       }
-      
-      // Update learning enabled checkbox
+    }
+
+    // Read actual learningEnabled setting from storage
+    if (settingsResponse?.success && settingsResponse.data) {
       const learningCheckbox = document.getElementById('learning-enabled');
       if (learningCheckbox) {
-        learningCheckbox.checked = learningData.accuracy > 0.7;
+        learningCheckbox.checked = settingsResponse.data.learningEnabled !== false;
       }
     }
   } catch (error) {
@@ -150,30 +157,11 @@ async function loadStats() {
 function updateDomainCount(count) {
   const domainsText = count === 1 ? 'DOMAIN' : 'DOMAINS';
   const countDisplay = `${count} ${domainsText}`;
-  
-  // Update or create domain count element
-  let countElement = document.getElementById('domain-count');
-  if (!countElement) {
-    countElement = document.createElement('span');
-    countElement.id = 'domain-count';
-    countElement.style.cssText = `
-      font-size: 10px;
-      font-weight: bold;
-      color: #888;
-      margin-left: 8px;
-    `;
-    
-    // Find the TRUSTED DOMAINS h2 element
-    const headings = document.querySelectorAll('h2');
-    for (const heading of headings) {
-      if (heading.textContent.includes('TRUSTED DOMAINS')) {
-        heading.appendChild(countElement);
-        break;
-      }
-    }
+
+  const countElement = document.getElementById('domain-count');
+  if (countElement) {
+    countElement.textContent = countDisplay;
   }
-  
-  countElement.textContent = countDisplay;
 }
 
 /**

@@ -3,12 +3,13 @@
 let stats = {
   trackersBlocked: 0,
   adsBlocked: 0,
-  fingerprintsBlocked: 0
+  fingerprintsBlocked: 0,
+  paramsStripped: 0
 };
 
 // Debounced save to reduce storage operations
 let saveTimeout = null;
-const SAVE_DELAY = 500; // Save at most twice per second for better reliability
+const SAVE_DELAY = 500;
 
 /**
  * Initialize stats from storage
@@ -38,7 +39,7 @@ export function getStats() {
 
 /**
  * Increment stat counter
- * @param {string} stat - Stat name ('trackersBlocked', 'adsBlocked', 'fingerprintsBlocked')
+ * @param {string} stat - Stat name
  * @param {number} amount - Amount to increment
  */
 export function incrementStat(stat, amount = 1) {
@@ -55,7 +56,8 @@ export async function resetStats() {
   stats = {
     trackersBlocked: 0,
     adsBlocked: 0,
-    fingerprintsBlocked: 0
+    fingerprintsBlocked: 0,
+    paramsStripped: 0
   };
   await save();
   console.log('PrivacyShield: Stats reset');
@@ -98,20 +100,71 @@ async function save() {
 
 /**
  * Calculate privacy score (0-100)
- * Higher threats detected = lower score
- * @returns {number} - Privacy score
+ * Reflects how well protected you are, not how many threats exist.
+ * +40 for enabled features, +35 for blocking activity, +25 for category breadth.
  */
 function calculatePrivacyScore() {
-  const { trackersBlocked, adsBlocked, fingerprintsBlocked } = stats;
+  const { trackersBlocked, adsBlocked, fingerprintsBlocked, paramsStripped } = stats;
+  const totalBlocked = trackersBlocked + adsBlocked + fingerprintsBlocked + paramsStripped;
 
-  let score = 100;
+  // Feature enablement score (0-40): assume features are enabled if we have this module loaded
+  // The real check happens in popup.js with settings context
+  let featureScore = 40;
 
-  // Deduct for threats detected (presence = bad site)
-  score -= Math.min(trackersBlocked * 2, 30);   // Max -30 for trackers
-  score -= Math.min(adsBlocked * 1, 20);        // Max -20 for ads
-  score -= Math.min(fingerprintsBlocked * 3, 50); // Max -50 for fingerprinting
+  // Blocking activity score (0-35): log scale with diminishing returns
+  let activityScore = 0;
+  if (totalBlocked > 0) {
+    activityScore = Math.min(35, Math.round(Math.log10(totalBlocked + 1) * 12));
+  }
 
-  return Math.max(0, Math.min(100, Math.round(score)));
+  // Category breadth score (0-25): bonus for blocking across multiple threat types
+  let breadthScore = 0;
+  const activeCategories = [
+    trackersBlocked > 0,
+    adsBlocked > 0,
+    fingerprintsBlocked > 0,
+    paramsStripped > 0
+  ].filter(Boolean).length;
+  breadthScore = Math.round((activeCategories / 4) * 25);
+
+  return Math.max(0, Math.min(100, featureScore + activityScore + breadthScore));
+}
+
+/**
+ * Calculate privacy score with settings context (used by popup.js)
+ */
+export function calculatePrivacyScoreWithSettings(statsData, settings) {
+  const { trackersBlocked = 0, adsBlocked = 0, fingerprintsBlocked = 0, paramsStripped = 0 } = statsData;
+  const totalBlocked = trackersBlocked + adsBlocked + fingerprintsBlocked + paramsStripped;
+
+  // Feature enablement score (0-40)
+  let featureScore = 0;
+  const features = [
+    settings.blockAds !== false,
+    settings.blockTrackers !== false,
+    settings.fingerprintProtection !== false,
+    settings.stripTrackingParams !== false,
+    settings.blockThirdPartyCookies !== false
+  ];
+  const enabledCount = features.filter(Boolean).length;
+  featureScore = Math.round((enabledCount / features.length) * 40);
+
+  // Blocking activity score (0-35)
+  let activityScore = 0;
+  if (totalBlocked > 0) {
+    activityScore = Math.min(35, Math.round(Math.log10(totalBlocked + 1) * 12));
+  }
+
+  // Category breadth score (0-25)
+  const activeCategories = [
+    trackersBlocked > 0,
+    adsBlocked > 0,
+    fingerprintsBlocked > 0,
+    paramsStripped > 0
+  ].filter(Boolean).length;
+  const breadthScore = Math.round((activeCategories / 4) * 25);
+
+  return Math.max(0, Math.min(100, featureScore + activityScore + breadthScore));
 }
 
 export default {
@@ -119,5 +172,6 @@ export default {
   getStats,
   incrementStat,
   resetStats,
-  resetStat
+  resetStat,
+  calculatePrivacyScoreWithSettings
 };

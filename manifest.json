@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "PrivacyShield",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Brutalist minimal privacy protection - block trackers, ads, and fingerprinting",
 
   "permissions": [
@@ -47,7 +47,7 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"],
       "run_at": "document_start",
-      "all_frames": false
+      "all_frames": true
     }
   ],
 

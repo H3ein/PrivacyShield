@@ -2,7 +2,7 @@
 
 import { MESSAGE_TYPES } from '../core/constants.js';
 import * as storage from '../core/storage.js';
-import * as stats from '../privacy/stats.js';
+
 
 class PrivacyShieldPopup {
   constructor() {
@@ -49,25 +49,36 @@ class PrivacyShieldPopup {
     this.elements = {
       // Toggle
       enabledToggle: document.getElementById('enabled'),
-      
+      powerBtn: document.getElementById('power-btn'),
+
       // Privacy Score
       privacyScore: document.getElementById('privacy-score'),
-      scoreFill: document.getElementById('score-fill'),
+      scoreArc: document.getElementById('score-arc'),
       scoreStatus: document.getElementById('score-status'),
-      
-      // Algorithm
+
+      // Stats
       algorithmToggle: document.getElementById('algorithm-toggle'),
       algorithmSection: document.getElementById('algorithm-section'),
-      patternAccuracy: document.getElementById('pattern-accuracy'),
-      ruleCoverage: document.getElementById('rule-coverage'),
-      fpRate: document.getElementById('fp-rate'),
-      detectionSpeed: document.getElementById('detection-speed'),
-      
+      algChevron: document.getElementById('alg-chevron'),
+      statTotalBlocked: document.getElementById('stat-total-blocked'),
+      statDomainsSeen: document.getElementById('stat-domains-seen'),
+      statBlockRate: document.getElementById('stat-block-rate'),
+
+      // Stats detail elements
+      statDomainsDetail: document.getElementById('stat-domains-detail'),
+      statBlockedDetail: document.getElementById('stat-blocked-detail'),
+      statRateDetail: document.getElementById('stat-rate-detail'),
+      statRequestsDetail: document.getElementById('stat-requests-detail'),
+      domainsBar: document.getElementById('domains-bar'),
+      blockedBar: document.getElementById('blocked-bar'),
+      rateBar: document.getElementById('rate-bar'),
+      requestsBar: document.getElementById('requests-bar'),
+
       // Threat Counts
       trackersBlocked: document.getElementById('trackers-blocked'),
       adsBlocked: document.getElementById('ads-blocked'),
       fingerprintsBlocked: document.getElementById('fingerprints-blocked'),
-      
+
       // Buttons
       whitelistBtn: document.getElementById('whitelist-btn'),
       settingsBtn: document.getElementById('settings-btn')
@@ -76,20 +87,23 @@ class PrivacyShieldPopup {
 
   async loadData() {
     try {
-      // Load settings and stats from background script in parallel
-      const [settingsResponse, statsResponse] = await Promise.all([
+      // Load settings, stats, and learning data from background script in parallel
+      const [settingsResponse, statsResponse, learningResponse] = await Promise.all([
         this.sendMessage(MESSAGE_TYPES.GET_SETTINGS),
-        this.sendMessage(MESSAGE_TYPES.GET_STATS)
+        this.sendMessage(MESSAGE_TYPES.GET_STATS),
+        this.sendMessage('getLearningData')
       ]);
-      
+
       this.currentSettings = settingsResponse.success ? settingsResponse.data : null;
       this.currentStats = statsResponse.success ? statsResponse.data : null;
-      
-      console.log('PrivacyShield: Data loaded:', { 
-        settings: this.currentSettings, 
-        stats: this.currentStats 
+      this.learningData = learningResponse?.success ? learningResponse.data : null;
+
+      console.log('PrivacyShield: Data loaded:', {
+        settings: this.currentSettings,
+        stats: this.currentStats,
+        learning: this.learningData
       });
-      
+
     } catch (error) {
       console.error('PrivacyShield: Failed to load data:', error);
       throw error;
@@ -97,7 +111,16 @@ class PrivacyShieldPopup {
   }
 
   setupEventListeners() {
-    // Toggle switch
+    // Power button toggles enabled state
+    if (this.elements.powerBtn) {
+      this.elements.powerBtn.addEventListener('click', async () => {
+        const newState = !this.elements.enabledToggle.checked;
+        this.elements.enabledToggle.checked = newState;
+        await this.handleToggleChange(newState);
+      });
+    }
+
+    // Hidden checkbox change (for programmatic use)
     if (this.elements.enabledToggle) {
       this.elements.enabledToggle.addEventListener('change', async (e) => {
         await this.handleToggleChange(e.target.checked);
@@ -180,15 +203,30 @@ class PrivacyShieldPopup {
   updatePrivacyScore() {
     const stats = this.currentStats;
     const privacyScore = this.calculatePrivacyScore(stats);
-    
+
     if (this.elements.privacyScore) {
       this.elements.privacyScore.textContent = privacyScore;
     }
-    
-    if (this.elements.scoreFill) {
-      this.elements.scoreFill.style.width = `${privacyScore}%`;
+
+    // Update the SVG arc gauge (total arc length is ~157)
+    if (this.elements.scoreArc) {
+      const arcLength = 157;
+      const offset = arcLength - (arcLength * privacyScore / 100);
+      this.elements.scoreArc.setAttribute('stroke-dashoffset', offset);
+
+      // Update arc color based on score
+      let color = '#00ff00';
+      if (privacyScore < 50) {
+        color = '#ff0000';
+      } else if (privacyScore < 70) {
+        color = '#ff9900';
+      } else if (privacyScore < 90) {
+        color = '#00ff00';
+      }
+      this.elements.scoreArc.style.stroke = color;
+      document.documentElement.style.setProperty('--score-color', color);
     }
-    
+
     if (this.elements.scoreStatus) {
       let status = 'PROTECTION ACTIVE';
       if (privacyScore >= 90) {
@@ -221,35 +259,53 @@ class PrivacyShieldPopup {
   }
 
   updateAlgorithmMetrics() {
-    // Calculate real algorithm metrics based on actual performance
-    const stats = this.currentStats;
+    const learning = this.learningData;
+    if (!learning) return;
+
+    const stats = this.currentStats || {};
     const totalBlocked = (stats.trackersBlocked || 0) + (stats.adsBlocked || 0) + (stats.fingerprintsBlocked || 0);
-    
-    // Pattern matching accuracy based on block rate
-    const patternAccuracy = totalBlocked > 0 ? Math.min(99, 85 + (totalBlocked / 50)) : 85;
-    if (this.elements.patternAccuracy) {
-      this.elements.patternAccuracy.textContent = `${Math.round(patternAccuracy)}%`;
+    const totalRequests = learning.totalRequests || 0;
+    const domainsSeen = learning.domainPatternsCount || 0;
+    const blockRate = totalRequests > 0 ? Math.round((totalBlocked / totalRequests) * 100) : 0;
+
+    // Inline preview stats
+    if (this.elements.statTotalBlocked) {
+      this.elements.statTotalBlocked.textContent = this.formatNumber(totalBlocked);
     }
-    
-    // Rule coverage based on diversity of threats blocked
-    const threatTypes = (stats.trackersBlocked > 0 ? 1 : 0) + 
-                       (stats.adsBlocked > 0 ? 1 : 0) + 
-                       (stats.fingerprintsBlocked > 0 ? 1 : 0);
-    const ruleCoverage = Math.min(95, 70 + (threatTypes * 10));
-    if (this.elements.ruleCoverage) {
-      this.elements.ruleCoverage.textContent = `${ruleCoverage}%`;
+    if (this.elements.statDomainsSeen) {
+      this.elements.statDomainsSeen.textContent = this.formatNumber(domainsSeen);
     }
-    
-    // False positive rate (inversely proportional to total blocks)
-    const fpRate = totalBlocked > 100 ? 0.1 : Math.max(0.2, 2.0 - (totalBlocked / 100));
-    if (this.elements.fpRate) {
-      this.elements.fpRate.textContent = `${fpRate.toFixed(1)}%`;
+    if (this.elements.statBlockRate) {
+      this.elements.statBlockRate.textContent = blockRate;
     }
-    
-    // Detection speed (simulated based on load)
-    const detectionSpeed = totalBlocked > 1000 ? 8 : totalBlocked > 100 ? 12 : 15;
-    if (this.elements.detectionSpeed) {
-      this.elements.detectionSpeed.textContent = `${detectionSpeed}ms`;
+
+    // Detail section
+    if (this.elements.statDomainsDetail) {
+      this.elements.statDomainsDetail.textContent = this.formatNumber(domainsSeen);
+    }
+    if (this.elements.domainsBar) {
+      this.elements.domainsBar.style.width = `${Math.min(100, domainsSeen)}%`;
+    }
+
+    if (this.elements.statBlockedDetail) {
+      this.elements.statBlockedDetail.textContent = this.formatNumber(totalBlocked);
+    }
+    if (this.elements.blockedBar) {
+      this.elements.blockedBar.style.width = `${Math.min(100, totalBlocked / Math.max(1, totalRequests) * 100)}%`;
+    }
+
+    if (this.elements.statRateDetail) {
+      this.elements.statRateDetail.textContent = `${blockRate}%`;
+    }
+    if (this.elements.rateBar) {
+      this.elements.rateBar.style.width = `${blockRate}%`;
+    }
+
+    if (this.elements.statRequestsDetail) {
+      this.elements.statRequestsDetail.textContent = this.formatNumber(totalRequests);
+    }
+    if (this.elements.requestsBar) {
+      this.elements.requestsBar.style.width = `${Math.min(100, totalRequests > 0 ? 100 : 0)}%`;
     }
   }
 
@@ -257,11 +313,10 @@ class PrivacyShieldPopup {
     if (this.elements.algorithmSection) {
       const isVisible = this.elements.algorithmSection.style.display !== 'none';
       this.elements.algorithmSection.style.display = isVisible ? 'none' : 'block';
-      
-      // Update algorithm toggle indicator
-      const indicator = this.elements.algorithmToggle?.querySelector('.algorithm-indicator');
-      if (indicator) {
-        indicator.style.background = isVisible ? 'var(--color-gray-medium)' : 'var(--color-green)';
+
+      // Update chevron indicator
+      if (this.elements.algChevron) {
+        this.elements.algChevron.textContent = isVisible ? '+' : '-';
       }
     }
   }
@@ -394,7 +449,7 @@ class PrivacyShieldPopup {
       const statKey = statId.replace('Blocked', 'Blocked').toLowerCase();
       await this.sendMessage('resetStat', { stat: statKey });
       await this.loadData(); // Reload stats
-      this.updateStats();
+      this.updateThreatCounts();
       console.log('PrivacyShield: Reset stat:', statId);
     } catch (error) {
       console.error('PrivacyShield: Failed to reset stat:', error);
@@ -402,29 +457,41 @@ class PrivacyShieldPopup {
   }
 
   calculatePrivacyScore(stats) {
-    // Use the same calculation as stats.js for consistency
-    const { trackersBlocked, adsBlocked, fingerprintsBlocked } = stats;
+    // Higher score = more protection enabled and active
+    const { trackersBlocked = 0, adsBlocked = 0, fingerprintsBlocked = 0, paramsStripped = 0 } = stats;
+    const totalBlocked = trackersBlocked + adsBlocked + fingerprintsBlocked + paramsStripped;
 
-    let score = 100;
+    // Feature enablement score (0-40)
+    let featureScore = 0;
+    if (this.currentSettings) {
+      const features = [
+        this.currentSettings.blockAds !== false,
+        this.currentSettings.blockTrackers !== false,
+        this.currentSettings.fingerprintProtection !== false,
+        this.currentSettings.stripTrackingParams !== false,
+        this.currentSettings.blockThirdPartyCookies !== false
+      ];
+      featureScore = Math.round((features.filter(Boolean).length / features.length) * 40);
+    } else {
+      featureScore = 40;
+    }
 
-    // Deduct for threats detected (presence = bad site)
-    score -= Math.min(trackersBlocked * 2, 30);   // Max -30 for trackers
-    score -= Math.min(adsBlocked * 1, 20);        // Max -20 for ads
-    score -= Math.min(fingerprintsBlocked * 3, 50); // Max -50 for fingerprinting
+    // Blocking activity score (0-35): log scale
+    let activityScore = 0;
+    if (totalBlocked > 0) {
+      activityScore = Math.min(35, Math.round(Math.log10(totalBlocked + 1) * 12));
+    }
 
-    return Math.max(0, Math.min(100, Math.round(score)));
+    // Category breadth score (0-25)
+    const activeCategories = [
+      trackersBlocked > 0, adsBlocked > 0, fingerprintsBlocked > 0, paramsStripped > 0
+    ].filter(Boolean).length;
+    const breadthScore = Math.round((activeCategories / 4) * 25);
+
+    return Math.max(0, Math.min(100, featureScore + activityScore + breadthScore));
   }
 
   formatNumber(num) {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
-  }
-
-  formatThreats(num) {
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + 'M';
     } else if (num >= 1000) {
@@ -482,14 +549,20 @@ class PrivacyShieldPopup {
     // Refresh stats every 2 seconds when popup is open
     this.refreshInterval = setInterval(async () => {
       try {
-        const statsResponse = await this.sendMessage(MESSAGE_TYPES.GET_STATS);
-        
+        const [statsResponse, learningResponse] = await Promise.all([
+          this.sendMessage(MESSAGE_TYPES.GET_STATS),
+          this.sendMessage('getLearningData')
+        ]);
+
         if (statsResponse.success && statsResponse.data) {
           this.currentStats = statsResponse.data;
           this.updatePrivacyScore();
           this.updateThreatCounts();
-          this.updateAlgorithmMetrics();
         }
+        if (learningResponse?.success && learningResponse.data) {
+          this.learningData = learningResponse.data;
+        }
+        this.updateAlgorithmMetrics();
       } catch (error) {
         console.error('PrivacyShield: Failed to refresh data:', error);
       }

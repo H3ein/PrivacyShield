@@ -8,98 +8,132 @@
 </head>
 <body>
   <header>
-    <h1>PRIVACYSHIELD</h1>
-    <span class="subtitle">SETTINGS</span>
+    <span class="brand">PRIVACYSHIELD</span>
+    <span class="version">v3.1.0</span>
   </header>
 
   <main>
-    <!-- Core Protection -->
-    <section>
-      <h2>CORE PROTECTION</h2>
-      <div class="setting-group">
-        <label class="setting-item">
-          <input type="checkbox" id="block-ads" checked>
-          <span class="setting-label">BLOCK ADS</span>
-        </label>
-        <label class="setting-item">
-          <input type="checkbox" id="block-trackers" checked>
-          <span class="setting-label">BLOCK TRACKERS</span>
-        </label>
-        <label class="setting-item">
-          <input type="checkbox" id="fingerprint-protection" checked>
-          <span class="setting-label">FINGERPRINT PROTECTION</span>
-        </label>
+    <!-- Column 1: Protection & Algorithm -->
+    <div class="column">
+      <div class="panel">
+        <h2>CORE PROTECTION</h2>
+        <div class="controls-grid">
+          <div class="control-item">
+            <input type="checkbox" id="block-ads" checked>
+            <label for="block-ads" class="control-label">
+              <span class="control-text">BLOCK ADS</span>
+              <div class="control-indicator"></div>
+            </label>
+          </div>
+          <div class="control-item">
+            <input type="checkbox" id="block-trackers" checked>
+            <label for="block-trackers" class="control-label">
+              <span class="control-text">BLOCK TRACKERS</span>
+              <div class="control-indicator"></div>
+            </label>
+          </div>
+          <div class="control-item">
+            <input type="checkbox" id="fingerprint-protection" checked>
+            <label for="fingerprint-protection" class="control-label">
+              <span class="control-text">FINGERPRINT PROTECTION</span>
+              <div class="control-indicator"></div>
+            </label>
+          </div>
+        </div>
       </div>
-    </section>
 
-    <!-- Algorithm Settings -->
-    <section>
-      <h2>ALGORITHM</h2>
-      <div class="setting-group">
-        <label class="setting-item">
-          <input type="checkbox" id="learning-enabled" checked>
-          <span class="setting-label">PATTERN LEARNING</span>
-        </label>
+      <div class="panel">
+        <h2>TRACKING DATA</h2>
+        <div class="controls-grid">
+          <div class="control-item">
+            <input type="checkbox" id="learning-enabled" checked>
+            <label for="learning-enabled" class="control-label">
+              <span class="control-text">COLLECT STATS</span>
+              <div class="control-indicator"></div>
+            </label>
+          </div>
+        </div>
         <div class="learning-stats">
           <div class="learning-stat">
             <span class="learning-value" id="patterns-learned-count">0</span>
-            <span class="learning-label">PATTERNS</span>
+            <span class="learning-label">DOMAINS BLOCKED</span>
           </div>
           <div class="learning-stat">
             <span class="learning-value" id="total-requests-count">0</span>
-            <span class="learning-label">REQUESTS</span>
+            <span class="learning-label">REQUESTS SEEN</span>
           </div>
         </div>
-        <button class="action-btn" id="reset-learning">RESET PATTERNS</button>
+        <button class="action-button" id="reset-learning">RESET DATA</button>
       </div>
-    </section>
+    </div>
 
-    <!-- Statistics -->
-    <section class="full-width">
-      <h2>STATISTICS</h2>
-      <div class="stats-grid">
-        <div class="stat-item">
-          <span class="stat-value" id="total-trackers">0</span>
-          <span class="stat-label">TRACKERS</span>
+    <!-- Column 2: Statistics -->
+    <div class="column">
+      <div class="panel full-height">
+        <h2>STATISTICS</h2>
+        <div class="stats-display">
+          <div class="stat-row">
+            <div class="stat-item">
+              <span class="stat-number" id="total-trackers">0</span>
+              <span class="stat-label">TRACKERS</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" id="total-ads">0</span>
+              <span class="stat-label">ADS</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-item">
+              <span class="stat-number" id="total-fingerprints">0</span>
+              <span class="stat-label">FINGERPRINTS</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" id="threats-prevented">0</span>
+              <span class="stat-label">THREATS</span>
+            </div>
+          </div>
         </div>
-        <div class="stat-item">
-          <span class="stat-value" id="total-ads">0</span>
-          <span class="stat-label">ADS</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value" id="total-fingerprints">0</span>
-          <span class="stat-label">FINGER</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value" id="threats-prevented">0</span>
-          <span class="stat-label">THREATS</span>
-        </div>
+        <button class="action-button" id="reset-stats">RESET STATS</button>
       </div>
-      <button class="action-btn" id="reset-stats">RESET STATS</button>
-    </section>
+    </div>
 
-    <!-- Whitelist -->
-    <section class="full-width">
-      <h2>TRUSTED DOMAINS</h2>
-      <div class="whitelist-section">
-        <textarea id="whitelist" rows="4" placeholder="example.com&#10;trusted-site.com"></textarea>
-        <button class="action-btn" id="save-whitelist">SAVE WHITELIST</button>
+    <!-- Column 3: Whitelist & Management -->
+    <div class="column">
+      <div class="panel">
+        <h2>TRUSTED DOMAINS</h2>
+        <div class="whitelist-container">
+          <textarea id="whitelist" rows="6" placeholder="example.com&#10;trusted-site.com"></textarea>
+          <span class="whitelist-info" id="domain-count">0 DOMAINS</span>
+          <button class="action-button" id="save-whitelist">SAVE WHITELIST</button>
+        </div>
       </div>
-    </section>
 
-    <!-- Management -->
-    <section class="full-width">
-      <h2>MANAGEMENT</h2>
-      <div class="action-grid">
-        <button class="action-btn" id="export-settings">EXPORT</button>
-        <button class="action-btn" id="import-settings">IMPORT</button>
-        <button class="action-btn warning" id="reset-all">RESET ALL</button>
+      <div class="panel">
+        <h2>MANAGEMENT</h2>
+        <div class="management-controls">
+          <button class="management-button" id="export-settings">
+            <span class="button-icon">[+]</span>
+            <span class="button-text">EXPORT SETTINGS</span>
+          </button>
+          <button class="management-button" id="import-settings">
+            <span class="button-icon">[-]</span>
+            <span class="button-text">IMPORT SETTINGS</span>
+          </button>
+          <button class="management-button danger" id="reset-all">
+            <span class="button-icon">[X]</span>
+            <span class="button-text">RESET ALL</span>
+          </button>
+        </div>
       </div>
-    </section>
+    </div>
   </main>
 
   <footer>
-    <span>PRIVACYSHIELD v3.0.0</span>
+    <div class="footer-info">
+      <span>PRIVACYSHIELD</span>
+      <span class="separator">|</span>
+      <span>v3.1.0</span>
+    </div>
   </footer>
 
   <script src="../src/ui/settings.js" type="module"></script>

@@ -1,9 +1,8 @@
 // PrivacyShield - Background Service Worker (MV3) - Optimized for Production
 
-import { MESSAGE_TYPES, TRACKING_PARAMS, SOCIAL_WIDGET_DOMAINS, ESSENTIAL_DOMAINS, CONSERVATIVE_TRACKER_PATTERNS, CONSERVATIVE_AD_PATTERNS, ADDITIONAL_TRACKING_PATTERNS } from './src/core/constants.js';
+import { MESSAGE_TYPES, ESSENTIAL_DOMAINS, CONSERVATIVE_TRACKER_PATTERNS, CONSERVATIVE_AD_PATTERNS } from './src/core/constants.js';
 import * as storage from './src/core/storage.js';
 import { extractDomain, extractHostname } from './src/core/utils.js';
-import * as trackerBlocker from './src/privacy/tracker-blocker.js';
 import * as stats from './src/privacy/stats.js';
 import { AILearningMonitor } from './src/ai/ai-learning-monitor.js';
 
@@ -31,11 +30,9 @@ const blockedResources = new Map();
 // Initialize AI Learning Monitor
 const aiLearningMonitor = new AILearningMonitor();
 
-// Smart learning system
+// Request tracking for honest stats
 let learningData = {
-  sitesAnalyzed: 0,
   patternsLearned: new Map(),
-  accuracy: 0.73, // Starting accuracy
   lastUpdate: Date.now(),
   totalRequests: 0,
   blockedRequests: 0,
@@ -62,40 +59,34 @@ async function initializeLearning() {
   }
 }
 
-// Update learning data based on blocking activity
+// Update tracking data based on blocking activity
 async function updateLearning(domain, blocked, category) {
   try {
     learningData.totalRequests++;
-    
+
     if (blocked) {
       learningData.blockedRequests++;
-      
-      // Learn domain patterns
+
+      // Track blocked domains
       if (!learningData.domainPatterns.has(domain)) {
         learningData.domainPatterns.set(domain, { blocks: 0, total: 0 });
       }
       const domainData = learningData.domainPatterns.get(domain);
       domainData.blocks++;
       domainData.total++;
-      
-      // Learn category patterns
+
+      // Track by category
       if (!learningData.patternsLearned.has(category)) {
-        learningData.patternsLearned.set(category, { blocks: 0, accuracy: 0 });
+        learningData.patternsLearned.set(category, { blocks: 0 });
       }
-      const patternData = learningData.patternsLearned.get(category);
-      patternData.blocks++;
+      learningData.patternsLearned.get(category).blocks++;
     }
-    
-    // Update accuracy based on performance
-    const blockRate = learningData.blockedRequests / learningData.totalRequests;
-    learningData.accuracy = Math.min(0.99, 0.73 + (blockRate * 0.26));
-    
-    // Update site count periodically
+
+    // Save periodically
     if (learningData.totalRequests % 100 === 0) {
-      learningData.sitesAnalyzed = Math.min(9999, learningData.sitesAnalyzed + 1);
       await saveLearningData();
     }
-    
+
   } catch (error) {
     console.error('PrivacyShield: Failed to update learning:', error);
   }
@@ -116,12 +107,11 @@ async function saveLearningData() {
   }
 }
 
-// Get learning data for UI
+// Get tracking data for UI
 function getLearningData() {
   return {
-    sitesAnalyzed: learningData.sitesAnalyzed,
-    accuracy: learningData.accuracy,
-    patternsLearned: learningData.patternsLearned.size,
+    domainPatternsCount: learningData.domainPatterns.size,
+    categoriesActive: learningData.patternsLearned.size,
     totalRequests: learningData.totalRequests,
     blockedRequests: learningData.blockedRequests,
     lastUpdate: learningData.lastUpdate
@@ -192,7 +182,7 @@ async function setupDeclarativeRules() {
           id: 2000 + index,
           priority: 1,
           action: { type: 'block' },
-          condition: { urlFilter: pattern, resourceTypes: ['script', 'sub_frame'] }
+          condition: { urlFilter: pattern, resourceTypes: ['script', 'sub_frame', 'image', 'xmlhttprequest', 'media', 'object'] }
         });
       });
     }
@@ -215,7 +205,8 @@ chrome.webRequest.onBeforeRequest.addListener(
       if (!settings.enabled) return { cancel: false };
       
       const url = details.url;
-      const domain = extractDomain(url);
+      const hostname = extractHostname(url);
+      const domain = extractDomain(hostname);
       const tabId = details.tabId;
       
       // Debug logging for first few requests
@@ -229,20 +220,24 @@ chrome.webRequest.onBeforeRequest.addListener(
       }
       
       // Check against essential domains
-      if (ESSENTIAL_DOMAINS.some(essential => domain.includes(essential))) {
+      if (ESSENTIAL_DOMAINS.some(essential => hostname === essential || hostname.endsWith('.' + essential))) {
         return { cancel: false };
       }
       
-      // Conservative blocking logic
-      const isTracker = CONSERVATIVE_TRACKER_PATTERNS.some(pattern => url.includes(pattern));
-      const isAd = CONSERVATIVE_AD_PATTERNS.some(pattern => url.includes(pattern));
+      // Conservative blocking logic - match against hostname, not full URL
+      const isTracker = CONSERVATIVE_TRACKER_PATTERNS.some(pattern =>
+        hostname === pattern || hostname.endsWith('.' + pattern)
+      );
+      const isAd = CONSERVATIVE_AD_PATTERNS.some(pattern =>
+        hostname === pattern || hostname.endsWith('.' + pattern)
+      );
+      // Only match known fingerprinting library paths, not generic words
+      const urlPath = url.toLowerCase();
       const isFingerprint = details.type === 'script' && (
-        url.includes('fingerprint') || 
-        url.includes('canvas') || 
-        url.includes('webgl') ||
-        url.includes('device') ||
-        url.includes('browser') ||
-        url.includes('screen')
+        hostname === 'fingerprintjs.com' || hostname.endsWith('.fingerprintjs.com') ||
+        hostname === 'fpjs.io' || hostname.endsWith('.fpjs.io') ||
+        urlPath.includes('/fingerprint2') || urlPath.includes('/fingerprintjs') ||
+        urlPath.includes('/fp.min.js') || urlPath.includes('/fp.js')
       );
       
       if (isTracker || isAd || isFingerprint) {
@@ -267,16 +262,24 @@ chrome.webRequest.onBeforeRequest.addListener(
         // Track blocking action in AI Learning Monitor
         aiLearningMonitor.trackBlockingAction(domain, url, 'dynamic_rule', category);
         
-        // Update tab stats
+        // Update tab stats and badge in real-time
         if (tabId >= 0) {
           if (!tabStats.has(tabId)) {
             tabStats.set(tabId, { blocked: 0, domains: new Set() });
           }
-          const stats = tabStats.get(tabId);
-          stats.blocked++;
-          stats.domains.add(domain);
+          const tabStat = tabStats.get(tabId);
+          tabStat.blocked++;
+          tabStat.domains.add(domain);
+
+          // Update badge in real-time on each block
+          chrome.action.setBadgeText({ text: tabStat.blocked.toString(), tabId });
+          chrome.action.setBadgeBackgroundColor({ color: '#ff9900', tabId });
+          chrome.action.setTitle({
+            title: `PrivacyShield: ${tabStat.blocked} threat${tabStat.blocked !== 1 ? 's' : ''} blocked on this tab`,
+            tabId
+          });
         }
-        
+
         return { cancel: true };
       } else {
         // Still update learning for allowed requests
@@ -318,9 +321,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         
       case 'resetLearning':
         learningData = {
-          sitesAnalyzed: 0,
           patternsLearned: new Map(),
-          accuracy: 0.73,
           lastUpdate: Date.now(),
           totalRequests: 0,
           blockedRequests: 0,
@@ -364,8 +365,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         break;
         
       case MESSAGE_TYPES.GET_TAB_STATS:
-        const tabStatistics = tabStats.get(sender.tab?.id) || { blocked: 0, domains: [] };
-        sendResponse({ success: true, data: tabStatistics });
+        const tabData = tabStats.get(sender.tab?.id) || { blocked: 0, domains: new Set() };
+        sendResponse({ success: true, data: { blocked: tabData.blocked, domains: [...tabData.domains] } });
         break;
         
       case MESSAGE_TYPES.RESET_STATS:
@@ -382,6 +383,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
         break;
         
+      case 'debugIncrementStats':
+        await stats.incrementStat('trackersBlocked');
+        await stats.incrementStat('adsBlocked');
+        await stats.incrementStat('fingerprintsBlocked');
+        sendResponse({ success: true });
+        break;
+
+      case 'testBlocking':
+        await stats.incrementStat('trackersBlocked');
+        await stats.incrementStat('adsBlocked');
+        sendResponse({ success: true, message: 'Test blocking triggered' });
+        break;
+
       case MESSAGE_TYPES.RESET_ALL:
         await storage.clear();
         await stats.resetStats();
@@ -421,42 +435,55 @@ chrome.action.onClicked.addListener(async (tab) => {
   });
 });
 
-// Update badge on tab update
+// Reset tab stats on new navigation, update badge on tab update
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  // Reset stats when a new page starts loading
+  if (changeInfo.status === 'loading' && changeInfo.url) {
+    tabStats.set(tabId, { blocked: 0, domains: new Set() });
+  }
+
   if (changeInfo.status === 'complete') {
     await ErrorHandler.safeExecute('updateBadge', async () => {
       const settings = await storage.getSettings();
       const tabStatsData = tabStats.get(tabId) || { blocked: 0 };
-      
+
+      const blockedCount = tabStatsData.blocked;
       chrome.action.setBadgeText({
-        text: settings.enabled ? (tabStatsData.blocked > 0 ? tabStatsData.blocked.toString() : 'ON') : 'OFF',
+        text: settings.enabled ? (blockedCount > 0 ? blockedCount.toString() : 'ON') : 'OFF',
         tabId
       });
-      
+
       chrome.action.setBadgeBackgroundColor({
-        color: settings.enabled ? (tabStatsData.blocked > 0 ? '#ff9900' : '#00ff00') : '#ff0000',
+        color: settings.enabled ? (blockedCount > 0 ? '#ff9900' : '#00ff00') : '#ff0000',
+        tabId
+      });
+
+      chrome.action.setTitle({
+        title: settings.enabled
+          ? (blockedCount > 0
+            ? `PrivacyShield: ${blockedCount} threat${blockedCount !== 1 ? 's' : ''} blocked on this tab`
+            : 'PrivacyShield: Protection active')
+          : 'PrivacyShield: Protection disabled',
         tabId
       });
     });
   }
 });
 
-// Performance optimization - cleanup old data periodically
+// Performance optimization - clean up stale tab data periodically
 setInterval(async () => {
   await ErrorHandler.safeExecute('periodicCleanup', async () => {
-    // Clean up old tab stats (older than 1 hour)
-    const now = Date.now();
-    const oneHour = 60 * 60 * 1000;
-    
-    for (const [tabId, stats] of tabStats.entries()) {
-      if (now - stats.lastUpdated > oneHour) {
+    // Remove entries for tabs that no longer exist
+    const openTabs = await chrome.tabs.query({});
+    const openTabIds = new Set(openTabs.map(t => t.id));
+
+    for (const tabId of tabStats.keys()) {
+      if (!openTabIds.has(tabId)) {
         tabStats.delete(tabId);
       }
     }
-    
-    // Clean up blocked resources
-    for (const [tabId, resources] of blockedResources.entries()) {
-      if (now - resources.lastUpdated > oneHour) {
+    for (const tabId of blockedResources.keys()) {
+      if (!openTabIds.has(tabId)) {
         blockedResources.delete(tabId);
       }
     }

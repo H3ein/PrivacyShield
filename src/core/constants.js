@@ -6,7 +6,6 @@ export const VERSION = '3.1.0';
 
 // Essential domains that must never be blocked (domain-only, no paths)
 export const ESSENTIAL_DOMAINS = [
-  'youtube.com',
   'googlevideo.com',
   'ytimg.com'
 ];
@@ -243,7 +242,115 @@ export const CONSERVATIVE_TRACKER_PATTERNS = [
   'contextweb.com',
   'yieldmo.com',
   'spotxchange.com',
-  'spotx.tv'
+  'spotx.tv',
+
+  // --- Google Analytics subdomains ---
+  'analytics.google.com',
+  'click.googleanalytics.com',
+
+  // --- WordPress ---
+  'stats.wp.com',
+
+  // --- LuckyOrange ---
+  'upload.luckyorange.net',
+  'cs.luckyorange.net',
+  'settings.luckyorange.net',
+  'api.luckyorange.com',
+  'w1.luckyorange.com',
+  'cdn.luckyorange.com',
+  'realtime.luckyorange.com',
+
+  // --- FreshWorks ---
+  'freshmarketer.com',
+  'claritybt.freshmarketer.com',
+  'fwtracks.freshmarketer.com',
+
+  // --- Bugsnag ---
+  'bugsnag.com',
+  'notify.bugsnag.com',
+  'sessions.bugsnag.com',
+  'api.bugsnag.com',
+  'app.bugsnag.com',
+
+  // --- Sentry ---
+  'sentry.io',
+  'getsentry.com',
+  'app.getsentry.com',
+  'browser.sentry-cdn.com',
+
+  // --- Social tracking ---
+  'log.pinterest.com',
+  'trk.pinterest.com',
+  'events.reddit.com',
+  'events.redditmedia.com',
+  'analytics.pointdrive.linkedin.com',
+
+  // --- TikTok ---
+  'ads-api.tiktok.com',
+  'business-api.tiktok.com',
+  'ads-sg.tiktok.com',
+  'analytics-sg.tiktok.com',
+  'log.byteoversea.com',
+
+  // --- Yahoo tracking ---
+  'log.fc.yahoo.com',
+  'udcm.yahoo.com',
+  'analytics.query.yahoo.com',
+  'geo.yahoo.com',
+  'analytics.yahoo.com',
+
+  // --- Yandex ---
+  'appmetrica.yandex.ru',
+  'adfstat.yandex.ru',
+  'metrika.yandex.ru',
+
+  // --- OEM: Realme ---
+  'realmemobile.com',
+  'bdapi-ads.realmemobile.com',
+  'bdapi-in-ads.realmemobile.com',
+  'iot-eu-logser.realme.com',
+  'iot-logser.realme.com',
+
+  // --- OEM: Xiaomi ---
+  'api.ad.xiaomi.com',
+  'sdkconfig.ad.xiaomi.com',
+  'sdkconfig.ad.intl.xiaomi.com',
+  'data.mistat.xiaomi.com',
+  'data.mistat.india.xiaomi.com',
+  'data.mistat.rus.xiaomi.com',
+  'tracking.rus.miui.com',
+
+  // --- OEM: Oppo ---
+  'adx.ads.oppomobile.com',
+  'ck.ads.oppomobile.com',
+  'data.ads.oppomobile.com',
+  'adsfs.oppomobile.com',
+
+  // --- OEM: Huawei ---
+  'metrics.data.hicloud.com',
+  'grs.hicloud.com',
+  'logservice.hicloud.com',
+  'logbak.hicloud.com',
+  'metrics2.data.hicloud.com',
+  'logservice1.hicloud.com',
+
+  // --- OEM: Samsung ---
+  'samsung-com.112.2o7.net',
+  'analytics-api.samsunghealthcn.com',
+  'smetrics.samsung.com',
+
+  // --- OEM: Apple ---
+  'metrics.mzstatic.com',
+  'metrics.icloud.com',
+  'api-adservices.apple.com',
+  'notes-analytics-events.apple.com',
+  'weather-analytics-events.apple.com',
+  'books-analytics-events.apple.com',
+  'iadsdk.apple.com',
+
+  // --- Amazon S3 analytics ---
+  'analytics.s3.amazonaws.com',
+  'analyticsengine.s3.amazonaws.com'
 ];
 
 // ---------------------------------------------------------------------------
@@ -386,7 +493,26 @@ export const CONSERVATIVE_AD_PATTERNS = [
   'admedia.com',
   'nativendo.com',
   'replacemedia.com',
-  'nativly.com'
+  'nativly.com',
+
+  // --- Yahoo ads ---
+  'ads.yahoo.com',
+  'partnerads.ysm.yahoo.com',
+  'gemini.yahoo.com',
+  'adtech.yahooinc.com',
+
+  // --- Yandex ads ---
+  'adfox.yandex.ru',
+
+  // --- Samsung ads ---
+  'samsungads.com',
+
+  // --- YouTube ads ---
+  'ads.youtube.com',
+
+  // --- Amazon S3 ads ---
+  'advice-ads.s3.amazonaws.com',
+  'adtago.s3.amazonaws.com'
 ];
 
 // Additional tracking patterns for extended blocking

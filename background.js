@@ -1,6 +1,6 @@
 // PrivacyShield - Background Service Worker (MV3) - Optimized for Production
 
-import { MESSAGE_TYPES, ESSENTIAL_DOMAINS, CONSERVATIVE_TRACKER_PATTERNS, CONSERVATIVE_AD_PATTERNS } from './src/core/constants.js';
+import { MESSAGE_TYPES, ESSENTIAL_DOMAINS, CONSERVATIVE_TRACKER_PATTERNS, CONSERVATIVE_AD_PATTERNS, ADDITIONAL_TRACKING_PATTERNS } from './src/core/constants.js';
 import * as storage from './src/core/storage.js';
 import { extractDomain, extractHostname } from './src/core/utils.js';
 import * as stats from './src/privacy/stats.js';
@@ -165,16 +165,17 @@ async function setupDeclarativeRules() {
     
     // Add tracker blocking rules
     if (settings.blockTrackers !== false) {
-      CONSERVATIVE_TRACKER_PATTERNS.forEach((pattern, index) => {
+      const allTrackerPatterns = [...CONSERVATIVE_TRACKER_PATTERNS, ...ADDITIONAL_TRACKING_PATTERNS];
+      allTrackerPatterns.forEach((pattern, index) => {
         rules.push({
           id: 1000 + index,
           priority: 2,
           action: { type: 'block' },
-          condition: { urlFilter: pattern, resourceTypes: ['script', 'sub_frame', 'image'] }
+          condition: { urlFilter: `||${pattern}^`, resourceTypes: ['script', 'sub_frame', 'image', 'xmlhttprequest'] }
         });
       });
     }
-    
+
     // Add ad blocking rules
     if (settings.blockAds !== false) {
       CONSERVATIVE_AD_PATTERNS.forEach((pattern, index) => {
@@ -182,14 +183,14 @@ async function setupDeclarativeRules() {
           id: 2000 + index,
           priority: 1,
           action: { type: 'block' },
-          condition: { urlFilter: pattern, resourceTypes: ['script', 'sub_frame', 'image', 'xmlhttprequest', 'media', 'object'] }
+          condition: { urlFilter: `||${pattern}^`, resourceTypes: ['script', 'sub_frame', 'image', 'xmlhttprequest', 'media', 'object'] }
         });
       });
     }
-    
+
     // Update rules
     await chrome.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: Array.from({ length: 3000 }, (_, i) => i), // Remove all existing rules
+      removeRuleIds: Array.from({ length: 5000 }, (_, i) => i), // Remove all existing rules
       addRules: rules
     });
     

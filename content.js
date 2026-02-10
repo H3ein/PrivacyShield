@@ -321,7 +321,19 @@ const AD_SELECTORS = [
   '.bottom-ad',
   '.sponsored',
   '.sponsor-banner',
-  '.promoted-content'
+  '.promoted-content',
+
+  // --- Script tag ad/tracking selectors ---
+  'script[src*="/pagead/"]',
+  'script[src*="pagead2"]',
+  'script[src*="googleads"]',
+  'script[src*="/ads/"]',
+  'script[src*="/ad.js"]',
+  'script[src*="/ads.js"]',
+  'script[src*="adsbygoogle"]',
+  'script[src*="adservice"]',
+  'script[src*="doubleclick"]',
+  'script[data-ad-client]'
 ];
 
 const AD_SELECTOR_STRING = AD_SELECTORS.join(', ');

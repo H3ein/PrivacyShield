@@ -673,5 +673,77 @@
       "urlFilter": "||simpli.fi^",
       "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest", "media", "object"]
     }
+  },
+  {
+    "id": 76,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||ads.youtube.com^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest", "media", "object"]
+    }
+  },
+  {
+    "id": 77,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||ads.yahoo.com^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest", "media", "object"]
+    }
+  },
+  {
+    "id": 78,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||gemini.yahoo.com^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest", "media", "object"]
+    }
+  },
+  {
+    "id": 79,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||adtech.yahooinc.com^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest", "media", "object"]
+    }
+  },
+  {
+    "id": 80,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||adfox.yandex.ru^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest", "media", "object"]
+    }
+  },
+  {
+    "id": 81,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||samsungads.com^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest", "media", "object"]
+    }
+  },
+  {
+    "id": 82,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||iadsdk.apple.com^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest", "media", "object"]
+    }
+  },
+  {
+    "id": 83,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||api-adservices.apple.com^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest", "media", "object"]
+    }
   }
 ]

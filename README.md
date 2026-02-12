@@ -4,6 +4,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-3.1.0-blue.svg)](https://github.com/H3ein/PrivacyShield)
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=google-chrome&logoColor=white)](https://github.com/H3ein/PrivacyShield)
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-green.svg)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 
 ## Why PrivacyShield?
 
@@ -12,13 +14,16 @@ PrivacyShield embraces **brutalist minimalism** - no-nonsense privacy protection
 ### Key Features
 
 #### Core Privacy Protection
-- **Ad Blocking** - Block 75+ ad network domains via DeclarativeNetRequest static rules, 140+ via dynamic rules, and 100+ CSS selectors to hide banner ads, leaderboards, sidebar ads, native ads, and sponsored content
-- **Tracker Blocking** - Prevent 250+ analytics and tracking scripts from loading
-- **Fingerprint Protection** - Protect against multiple fingerprinting vectors:
-  - Canvas fingerprinting (deterministic noise)
-  - WebGL fingerprinting (common GPU spoofing)
-  - Screen size fuzzing
-  - Timezone offset noise
+- **Ad Blocking** - Multi-layer approach with 83 static DeclarativeNetRequest rules + dynamic rules + CSS selectors to block and hide ads from major networks including Google Ads, Facebook, Twitter, Amazon, and programmatic platforms
+- **Tracker Blocking** - Prevent 250+ analytics and tracking domains from loading (Google Analytics, Facebook Pixel, Mixpanel, Hotjar, etc.)
+- **Malware Protection** - Block access to 100+ known malicious domains via static rules
+- **Fingerprint Protection** - Six-vector protection system:
+  - Canvas fingerprinting (deterministic noise injection)
+  - WebGL fingerprinting (GPU characteristic spoofing)
+  - Audio context fingerprinting
+  - Font enumeration protection
+  - WebRTC leak prevention
+  - Hardware concurrency masking
 - **URL Cleaning** - Strip tracking parameters (UTM, fbclid, gclid, etc.) from URLs
 - **Iframe Ad Blocking** - Content script runs in all frames, catching ads embedded in iframes
 
@@ -47,9 +52,9 @@ PrivacyShield embraces **brutalist minimalism** - no-nonsense privacy protection
 
 ### Three-Layer Blocking
 
-1. **DeclarativeNetRequest (Static Rules)** - 75 static rules in `rules/ads.json` block major ad network domains at the network level before requests are sent
-2. **DeclarativeNetRequest (Dynamic Rules)** - 140+ dynamic rules generated from `CONSERVATIVE_AD_PATTERNS` covering ad exchanges, SSPs, DSPs, native ad platforms, and pop-under networks
-3. **Content Script (DOM Hiding)** - 100+ CSS selectors hide ad containers, banners, leaderboards, sidebar ads, sponsored content, and native ad widgets. A MutationObserver catches dynamically inserted ads
+1. **Static DeclarativeNetRequest Rules** - 83 ad blocking rules + 150+ tracker rules + 100+ malware rules in JSON files (`rules/ads.json`, `rules/trackers.json`, `rules/malware.json`) block threats at the network level before requests are sent
+2. **Dynamic DeclarativeNetRequest Rules** - Generated at runtime from domain pattern lists in `src/core/constants.js`, covering 200+ additional ad/tracker domains
+3. **Content Script DOM Hiding** - CSS selectors + MutationObserver hide ad elements dynamically inserted into pages. The content script also implements fingerprint protection by intercepting canvas, WebGL, audio, and other APIs
 
 ### What Gets Blocked
 - Google Ads (DoubleClick, AdSense, AdServices)
@@ -87,9 +92,9 @@ privacyshield/
 │   ├── settings-new.html # Settings page
 │   └── settings.css      # Settings styles
 ├── rules/
-│   ├── ads.json          # 75 static ad blocking rules
-│   ├── trackers.json     # Tracker blocking rules
-│   └── malware.json      # Malware domain rules
+│   ├── ads.json          # 83 static ad blocking rules
+│   ├── trackers.json     # 150+ tracker blocking rules
+│   └── malware.json      # 100+ malware domain rules
 └── icons/                # Extension icons
 ```
 
@@ -113,7 +118,50 @@ privacyshield/
 git clone https://github.com/H3ein/PrivacyShield.git
 cd PrivacyShield
 npm install
-npm test
+npm test              # Run Jest test suite
+npm run lint          # ESLint checks
+npm run build         # Build production package
+```
+
+### Project Structure
+```
+privacyshield/
+├── manifest.json              # Chrome extension manifest (MV3)
+├── background.js              # Service worker (request monitoring, stats, badge)
+├── content.js                 # Content script (DOM hiding, fingerprint protection)
+├── src/
+│   ├── core/
+│   │   ├── constants.js       # Domain lists, settings, message types
+│   │   ├── storage.js         # Chrome storage wrapper
+│   │   └── utils.js           # Utility functions
+│   ├── privacy/
+│   │   ├── fingerprint.js     # 6-vector fingerprint protection
+│   │   ├── stats.js           # Privacy score & counters
+│   │   └── tracker-blocker.js # Dynamic rule generation
+│   ├── ui/
+│   │   ├── popup.js           # Popup controller
+│   │   └── settings.js        # Settings page controller
+│   └── ai/
+│       └── ai-learning-monitor.js  # Logging (monitoring only)
+├── ui/
+│   ├── popup.html             # Popup interface
+│   ├── popup.css              # Popup styles (brutalist)
+│   ├── settings-new.html      # Settings page
+│   └── settings.css           # Settings styles
+├── rules/
+│   ├── ads.json               # 83 static ad blocking rules
+│   ├── trackers.json          # 150+ tracker blocking rules
+│   └── malware.json           # 100+ malware domain rules
+└── tests/                     # Jest test suite
+```
+
+### Testing
+```bash
+npm test                # Run all tests
+npm run test:watch      # Watch mode
+npm run test:coverage   # Coverage report
+npm run lint            # ESLint
+npm run lint:fix        # Auto-fix issues
 ```
 
 ## Security & Privacy

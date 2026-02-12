@@ -20,10 +20,10 @@ export function extractHostname(url) {
  * @returns {string} - Domain
  */
 export function extractDomain(hostname) {
-  if (!hostname) return '';
+  if (!hostname) {return '';}
 
   const parts = hostname.split('.');
-  if (parts.length <= 2) return hostname;
+  if (parts.length <= 2) {return hostname;}
 
   // Handle special TLDs like .co.uk, .com.au
   const specialTLDs = ['co.uk', 'com.au', 'co.jp', 'co.in'];
@@ -42,9 +42,9 @@ export function extractDomain(hostname) {
  * @returns {string} - Formatted number with suffixes
  */
 export function formatNumber(num) {
-  if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'B';
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  if (num >= 1000000000) {return (num / 1000000000).toFixed(1) + 'B';}
+  if (num >= 1000000) {return (num / 1000000).toFixed(1) + 'M';}
+  if (num >= 1000) {return (num / 1000).toFixed(1) + 'K';}
   return num.toString();
 }
 

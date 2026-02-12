@@ -14,7 +14,13 @@ PrivacyShield embraces **brutalist minimalism** - no-nonsense privacy protection
 ### Key Features
 
 #### Core Privacy Protection
-- **Ad Blocking** - Multi-layer approach with 83 static DeclarativeNetRequest rules + dynamic rules + CSS selectors to block and hide ads from major networks including Google Ads, Facebook, Twitter, Amazon, and programmatic platforms
+- **Ad Blocking** - Multi-layer approach with 102 static DeclarativeNetRequest rules + dynamic rules + CSS selectors to block and hide ads from major networks including Google Ads, Facebook, Twitter, Amazon, and programmatic platforms
+- **Enhanced Ad Blocking** - Specialized blocking for modern ad formats:
+  - **Video Ads** - Detect and block pre-roll, mid-roll video ads (YouTube, VAST/VMAP tags, FreeWheel, etc.)
+  - **Interstitial Ads** - Heuristic detection of full-page overlay ads based on position, z-index, and viewport coverage
+  - **Push Notification Ads** - Block Notification API abuse and ServiceWorker push subscriptions
+  - **Popup Blocking** - Enhanced window.open() interception with user interaction tracking
+  - **Expandable Ads** - Block MRAID API for mobile rich media expandable ads
 - **Tracker Blocking** - Prevent 250+ analytics and tracking domains from loading (Google Analytics, Facebook Pixel, Mixpanel, Hotjar, etc.)
 - **Malware Protection** - Block access to 100+ known malicious domains via static rules
 - **Fingerprint Protection** - Six-vector protection system:
@@ -50,11 +56,16 @@ PrivacyShield embraces **brutalist minimalism** - no-nonsense privacy protection
 
 ## How It Works
 
-### Three-Layer Blocking
+### Three-Layer Blocking + Advanced API Protection
 
-1. **Static DeclarativeNetRequest Rules** - 83 ad blocking rules + 150+ tracker rules + 100+ malware rules in JSON files (`rules/ads.json`, `rules/trackers.json`, `rules/malware.json`) block threats at the network level before requests are sent
+1. **Static DeclarativeNetRequest Rules** - 102 ad blocking rules + 150+ tracker rules + 100+ malware rules in JSON files (`rules/ads.json`, `rules/trackers.json`, `rules/malware.json`) block threats at the network level before requests are sent
 2. **Dynamic DeclarativeNetRequest Rules** - Generated at runtime from domain pattern lists in `src/core/constants.js`, covering 200+ additional ad/tracker domains
-3. **Content Script DOM Hiding** - CSS selectors + MutationObserver hide ad elements dynamically inserted into pages. The content script also implements fingerprint protection by intercepting canvas, WebGL, audio, and other APIs
+3. **Content Script DOM Hiding** - CSS selectors (97+ patterns) + MutationObserver hide ad elements dynamically inserted into pages. The content script also implements fingerprint protection by intercepting canvas, WebGL, audio, and other APIs
+4. **JavaScript API Blocking** - Block ad-related JavaScript APIs:
+   - Notification API (prevents push notification permission requests)
+   - ServiceWorker push subscriptions
+   - MRAID API (mobile rich media ads)
+   - window.open() with user interaction tracking
 
 ### What Gets Blocked
 - Google Ads (DoubleClick, AdSense, AdServices)
@@ -64,7 +75,9 @@ PrivacyShield embraces **brutalist minimalism** - no-nonsense privacy protection
 - Programmatic/DSP networks (The Trade Desk, MediaMath, Simpli.fi)
 - Pop-under networks (PropellerAds, PopAds, PopCash, AdCash, Adsterra)
 - Header bidding (Prebid, Amazon Ad System)
-- Video ad platforms (Teads, Innovid, SpotX)
+- Video ad platforms (Teads, Innovid, SpotX, FreeWheel, Videoplaza, StreamRail, Adap.tv, Uplynk, SmartClip)
+- Interstitial ad networks (Adtelligent, AdMixer, VibrantMedia, Instinctive)
+- Push notification ad networks (PushCrew, Subscribers.com, Airship, CleverPush)
 - Ad verification (DoubleVerify, MOAT, IAS)
 
 ### Privacy Score System
@@ -92,7 +105,7 @@ privacyshield/
 │   ├── settings-new.html # Settings page
 │   └── settings.css      # Settings styles
 ├── rules/
-│   ├── ads.json          # 83 static ad blocking rules
+│   ├── ads.json          # 102 static ad blocking rules
 │   ├── trackers.json     # 150+ tracker blocking rules
 │   └── malware.json      # 100+ malware domain rules
 └── icons/                # Extension icons

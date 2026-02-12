@@ -745,5 +745,176 @@
       "urlFilter": "||api-adservices.apple.com^",
       "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest", "media", "object"]
     }
+  },
+  {
+    "id": 84,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||fwmrm.net^",
+      "resourceTypes": ["script", "xmlhttprequest", "sub_frame", "media"]
+    }
+  },
+  {
+    "id": 85,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||2mdn.net^",
+      "resourceTypes": ["script", "image", "sub_frame", "media"]
+    }
+  },
+  {
+    "id": 86,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||videoplaza.tv^",
+      "resourceTypes": ["script", "xmlhttprequest", "media"]
+    }
+  },
+  {
+    "id": 87,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||streamrail.com^",
+      "resourceTypes": ["script", "xmlhttprequest", "media"]
+    }
+  },
+  {
+    "id": 88,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||adap.tv^",
+      "resourceTypes": ["script", "xmlhttprequest", "media"]
+    }
+  },
+  {
+    "id": 89,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||uplynk.com^",
+      "resourceTypes": ["script", "xmlhttprequest", "media"]
+    }
+  },
+  {
+    "id": 90,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||smartclip.net^",
+      "resourceTypes": ["script", "xmlhttprequest", "media"]
+    }
+  },
+  {
+    "id": 91,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||cedexis.com^",
+      "resourceTypes": ["script", "xmlhttprequest"]
+    }
+  },
+  {
+    "id": 92,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||vast.yieldmo.com^",
+      "resourceTypes": ["script", "xmlhttprequest"]
+    }
+  },
+  {
+    "id": 93,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||ispot.tv^",
+      "resourceTypes": ["script", "xmlhttprequest", "image"]
+    }
+  },
+  {
+    "id": 94,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||adtelligent.com^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest"]
+    }
+  },
+  {
+    "id": 95,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||admixer.net^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest"]
+    }
+  },
+  {
+    "id": 96,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||adhesion.com^",
+      "resourceTypes": ["script", "image", "sub_frame"]
+    }
+  },
+  {
+    "id": 97,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||vibrant.co^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest"]
+    }
+  },
+  {
+    "id": 98,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||instinctiveads.com^",
+      "resourceTypes": ["script", "image", "sub_frame", "xmlhttprequest"]
+    }
+  },
+  {
+    "id": 99,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||pushcrew.com^",
+      "resourceTypes": ["script", "xmlhttprequest", "sub_frame"]
+    }
+  },
+  {
+    "id": 100,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||subscribers.com^",
+      "resourceTypes": ["script", "xmlhttprequest", "sub_frame"]
+    }
+  },
+  {
+    "id": 101,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||airship.com^",
+      "resourceTypes": ["script", "xmlhttprequest", "sub_frame"]
+    }
+  },
+  {
+    "id": 102,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "urlFilter": "||clever-push.com^",
+      "resourceTypes": ["script", "xmlhttprequest", "sub_frame"]
+    }
   }
 ]

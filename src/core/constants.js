@@ -446,6 +446,16 @@ export const CONSERVATIVE_AD_PATTERNS = [
   'teads.tv',
   'innovid.com',
   's.innovid.com',
+  'fwmrm.net',                    // FreeWheel video ads
+  '2mdn.net',                     // DoubleClick video creative
+  'videoplaza.tv',                // Videoplaza (Ooyala)
+  'streamrail.com',               // StreamRail
+  'adap.tv',                      // Adap.tv (Verizon)
+  'uplynk.com',                   // Uplynk video ads
+  'smartclip.net',                // SmartClip
+  'cedexis.com',                  // CDN optimization for ads
+  'vast.yieldmo.com',             // Yieldmo VAST tags
+  'ispot.tv',                     // iSpot video tracking
 
   // --- Social media ad platforms ---
   'an.facebook.com',
@@ -512,7 +522,20 @@ export const CONSERVATIVE_AD_PATTERNS = [
 
   // --- Amazon S3 ads ---
   'advice-ads.s3.amazonaws.com',
-  'adtago.s3.amazonaws.com'
+  'adtago.s3.amazonaws.com',
+
+  // --- Interstitial & Overlay Ads ---
+  'adtelligent.com',              // Adtelligent interstitials
+  'admixer.net',                  // AdMixer overlays
+  'adhesion.com',                 // Adhesion ads
+  'vibrant.co',                   // VibrantMedia overlays
+  'instinctiveads.com',           // Instinctive ads
+
+  // --- Push Notification Ad Networks ---
+  'pushcrew.com',                 // PushCrew
+  'subscribers.com',              // Subscribers
+  'airship.com',                  // Airship (Urban Airship)
+  'clever-push.com'               // CleverPush
 ];
 
 // Additional tracking patterns for extended blocking
@@ -562,7 +585,12 @@ export const DEFAULT_SETTINGS = {
   blockSocialWidgets: false,
   learningEnabled: true,
   learningThreshold: 3,
-  whitelistedDomains: []
+  whitelistedDomains: [],
+  // Enhanced ad blocking controls
+  blockVideoAds: true,
+  blockInterstitialAds: true,
+  blockPushNotifications: true,
+  blockPopups: true
 };
 
 // Tracking parameters to strip from URLs
@@ -633,7 +661,13 @@ export const MESSAGE_TYPES = {
   RESET_ALL: 'resetAll',
 
   // Fingerprint protection
-  FINGERPRINT_ATTEMPT: 'fingerprintAttempt'
+  FINGERPRINT_ATTEMPT: 'fingerprintAttempt',
+
+  // Enhanced blocking stats
+  POPUP_BLOCKED: 'popupBlocked',
+  INTERSTITIAL_BLOCKED: 'interstitialBlocked',
+  VIDEO_AD_BLOCKED: 'videoAdBlocked',
+  PUSH_NOTIFICATION_BLOCKED: 'pushNotificationBlocked'
 };
 
 export default {

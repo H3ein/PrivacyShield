@@ -4,7 +4,12 @@ let stats = {
   trackersBlocked: 0,
   adsBlocked: 0,
   fingerprintsBlocked: 0,
-  paramsStripped: 0
+  paramsStripped: 0,
+  // Enhanced ad blocking stats
+  videoAdsBlocked: 0,
+  interstitialsBlocked: 0,
+  popupsBlocked: 0,
+  pushNotificationsBlocked: 0
 };
 
 // Debounced save to reduce storage operations
@@ -57,7 +62,11 @@ export async function resetStats() {
     trackersBlocked: 0,
     adsBlocked: 0,
     fingerprintsBlocked: 0,
-    paramsStripped: 0
+    paramsStripped: 0,
+    videoAdsBlocked: 0,
+    interstitialsBlocked: 0,
+    popupsBlocked: 0,
+    pushNotificationsBlocked: 0
   };
   await save();
   console.log('PrivacyShield: Stats reset');
@@ -109,7 +118,7 @@ function calculatePrivacyScore() {
 
   // Feature enablement score (0-40): assume features are enabled if we have this module loaded
   // The real check happens in popup.js with settings context
-  let featureScore = 40;
+  const featureScore = 40;
 
   // Blocking activity score (0-35): log scale with diminishing returns
   let activityScore = 0;

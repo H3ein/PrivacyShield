@@ -44,6 +44,10 @@ async function loadSettings() {
       document.getElementById('block-ads').checked = settings.blockAds !== false;
       document.getElementById('block-trackers').checked = settings.blockTrackers !== false;
       document.getElementById('fingerprint-protection').checked = settings.fingerprintProtection !== false;
+      document.getElementById('block-video-ads').checked = settings.blockVideoAds !== false;
+      document.getElementById('block-interstitials').checked = settings.blockInterstitialAds !== false;
+      document.getElementById('block-push-notifications').checked = settings.blockPushNotifications !== false;
+      document.getElementById('block-popups').checked = settings.blockPopups !== false;
     }
   } catch (error) {
     console.error('Failed to load settings:', error);
@@ -139,10 +143,31 @@ async function loadStats() {
       
       const threatsElement = document.getElementById('threats-prevented');
       if (threatsElement) {
-        const totalThreats = (stats.trackersBlocked || 0) + 
-                           (stats.adsBlocked || 0) + 
+        const totalThreats = (stats.trackersBlocked || 0) +
+                           (stats.adsBlocked || 0) +
                            (stats.fingerprintsBlocked || 0);
         threatsElement.textContent = formatNumber(totalThreats);
+      }
+
+      // New enhanced ad blocking stats
+      const videoAdsElement = document.getElementById('total-video-ads');
+      if (videoAdsElement) {
+        videoAdsElement.textContent = formatNumber(stats.videoAdsBlocked || 0);
+      }
+
+      const interstitialsElement = document.getElementById('total-interstitials');
+      if (interstitialsElement) {
+        interstitialsElement.textContent = formatNumber(stats.interstitialsBlocked || 0);
+      }
+
+      const popupsElement = document.getElementById('total-popups');
+      if (popupsElement) {
+        popupsElement.textContent = formatNumber(stats.popupsBlocked || 0);
+      }
+
+      const pushNotificationsElement = document.getElementById('total-push-notifications');
+      if (pushNotificationsElement) {
+        pushNotificationsElement.textContent = formatNumber(stats.pushNotificationsBlocked || 0);
       }
     }
   } catch (error) {
@@ -187,6 +212,34 @@ function setupEventListeners() {
     await chrome.runtime.sendMessage({
       type: MESSAGE_TYPES.UPDATE_SETTINGS,
       data: { fingerprintProtection: e.target.checked }
+    });
+  });
+
+  document.getElementById('block-video-ads').addEventListener('change', async (e) => {
+    await chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.UPDATE_SETTINGS,
+      data: { blockVideoAds: e.target.checked }
+    });
+  });
+
+  document.getElementById('block-interstitials').addEventListener('change', async (e) => {
+    await chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.UPDATE_SETTINGS,
+      data: { blockInterstitialAds: e.target.checked }
+    });
+  });
+
+  document.getElementById('block-push-notifications').addEventListener('change', async (e) => {
+    await chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.UPDATE_SETTINGS,
+      data: { blockPushNotifications: e.target.checked }
+    });
+  });
+
+  document.getElementById('block-popups').addEventListener('change', async (e) => {
+    await chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.UPDATE_SETTINGS,
+      data: { blockPopups: e.target.checked }
     });
   });
 
@@ -319,7 +372,7 @@ function setupEventListeners() {
     
     input.onchange = async (e) => {
       const file = e.target.files[0];
-      if (!file) return;
+      if (!file) {return;}
       
       try {
         const text = await file.text();

@@ -69,9 +69,17 @@ class PrivacyShieldPopup {
       statBlockedDetail: document.getElementById('stat-blocked-detail'),
       statRateDetail: document.getElementById('stat-rate-detail'),
       statRequestsDetail: document.getElementById('stat-requests-detail'),
+      statVideoAdsDetail: document.getElementById('stat-video-ads-detail'),
+      statInterstitialsDetail: document.getElementById('stat-interstitials-detail'),
+      statPopupsDetail: document.getElementById('stat-popups-detail'),
+      statPushNotificationsDetail: document.getElementById('stat-push-notifications-detail'),
       domainsBar: document.getElementById('domains-bar'),
       blockedBar: document.getElementById('blocked-bar'),
       rateBar: document.getElementById('rate-bar'),
+      videoAdsBar: document.getElementById('video-ads-bar'),
+      interstitialsBar: document.getElementById('interstitials-bar'),
+      popupsBar: document.getElementById('popups-bar'),
+      pushNotificationsBar: document.getElementById('push-notifications-bar'),
       requestsBar: document.getElementById('requests-bar'),
 
       // Threat Counts
@@ -260,7 +268,7 @@ class PrivacyShieldPopup {
 
   updateAlgorithmMetrics() {
     const learning = this.learningData;
-    if (!learning) return;
+    if (!learning) {return;}
 
     const stats = this.currentStats || {};
     const totalBlocked = (stats.trackersBlocked || 0) + (stats.adsBlocked || 0) + (stats.fingerprintsBlocked || 0);
@@ -306,6 +314,40 @@ class PrivacyShieldPopup {
     }
     if (this.elements.requestsBar) {
       this.elements.requestsBar.style.width = `${Math.min(100, totalRequests > 0 ? 100 : 0)}%`;
+    }
+
+    // New enhanced ad blocking stats
+    const videoAdsBlocked = stats.videoAdsBlocked || 0;
+    const interstitialsBlocked = stats.interstitialsBlocked || 0;
+    const popupsBlocked = stats.popupsBlocked || 0;
+    const pushNotificationsBlocked = stats.pushNotificationsBlocked || 0;
+
+    if (this.elements.statVideoAdsDetail) {
+      this.elements.statVideoAdsDetail.textContent = this.formatNumber(videoAdsBlocked);
+    }
+    if (this.elements.videoAdsBar) {
+      this.elements.videoAdsBar.style.width = `${Math.min(100, videoAdsBlocked > 0 ? Math.min(100, videoAdsBlocked / 10) : 0)}%`;
+    }
+
+    if (this.elements.statInterstitialsDetail) {
+      this.elements.statInterstitialsDetail.textContent = this.formatNumber(interstitialsBlocked);
+    }
+    if (this.elements.interstitialsBar) {
+      this.elements.interstitialsBar.style.width = `${Math.min(100, interstitialsBlocked > 0 ? Math.min(100, interstitialsBlocked / 10) : 0)}%`;
+    }
+
+    if (this.elements.statPopupsDetail) {
+      this.elements.statPopupsDetail.textContent = this.formatNumber(popupsBlocked);
+    }
+    if (this.elements.popupsBar) {
+      this.elements.popupsBar.style.width = `${Math.min(100, popupsBlocked > 0 ? Math.min(100, popupsBlocked / 10) : 0)}%`;
+    }
+
+    if (this.elements.statPushNotificationsDetail) {
+      this.elements.statPushNotificationsDetail.textContent = this.formatNumber(pushNotificationsBlocked);
+    }
+    if (this.elements.pushNotificationsBar) {
+      this.elements.pushNotificationsBar.style.width = `${Math.min(100, pushNotificationsBlocked > 0 ? Math.min(100, pushNotificationsBlocked / 10) : 0)}%`;
     }
   }
 
@@ -571,7 +613,7 @@ class PrivacyShieldPopup {
 
   // Public method to refresh data
   async refresh() {
-    if (!this.isInitialized) return;
+    if (!this.isInitialized) {return;}
     
     try {
       await this.loadData();

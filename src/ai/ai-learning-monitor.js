@@ -195,7 +195,7 @@ class AILearningMonitor {
   getAccuracyTrend() {
     const history = this.performanceMetrics.accuracyHistory.slice(-10); // Last 10 updates
     
-    if (history.length < 2) return 'insufficient_data';
+    if (history.length < 2) {return 'insufficient_data';}
     
     const recent = history.slice(-5);
     const older = history.slice(0, Math.min(5, history.length - 5));
@@ -203,8 +203,8 @@ class AILearningMonitor {
     const recentAvg = recent.reduce((sum, h) => sum + h.accuracy, 0) / recent.length;
     const olderAvg = older.reduce((sum, h) => sum + h.accuracy, 0) / older.length;
     
-    if (recentAvg > olderAvg + 0.05) return 'improving';
-    if (recentAvg < olderAvg - 0.05) return 'declining';
+    if (recentAvg > olderAvg + 0.05) {return 'improving';}
+    if (recentAvg < olderAvg - 0.05) {return 'declining';}
     return 'stable';
   }
 
@@ -308,7 +308,7 @@ class AILearningMonitor {
    * Calculate current accuracy
    */
   getCurrentAccuracy() {
-    if (this.performanceMetrics.accuracyHistory.length === 0) return 0.5;
+    if (this.performanceMetrics.accuracyHistory.length === 0) {return 0.5;}
     
     const recent = this.performanceMetrics.accuracyHistory.slice(-5);
     return recent.reduce((sum, h) => sum + h.accuracy, 0) / recent.length;
@@ -318,7 +318,7 @@ class AILearningMonitor {
    * Calculate learning rate
    */
   calculateLearningRate(hoursActive) {
-    if (hoursActive === 0) return 0;
+    if (hoursActive === 0) {return 0;}
     
     return Math.round((this.sessionStats.newPatternsFound / hoursActive) * 10) / 10;
   }
@@ -329,7 +329,7 @@ class AILearningMonitor {
   calculateUserEngagement() {
     const totalBlocks = this.sessionStats.adsBlocked + this.sessionStats.trackersBlocked;
     
-    if (totalBlocks === 0) return 0;
+    if (totalBlocks === 0) {return 0;}
     
     return Math.round((this.sessionStats.userCorrections / totalBlocks) * 100);
   }
@@ -371,9 +371,9 @@ class AILearningMonitor {
    * Get rule type from ID
    */
   getRuleType(ruleId) {
-    if (ruleId.includes('adaptive_')) return 'adaptive';
-    if (ruleId.includes('community_')) return 'community';
-    if (ruleId.includes('static_')) return 'static';
+    if (ruleId.includes('adaptive_')) {return 'adaptive';}
+    if (ruleId.includes('community_')) {return 'community';}
+    if (ruleId.includes('static_')) {return 'static';}
     return 'unknown';
   }
 

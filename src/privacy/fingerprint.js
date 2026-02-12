@@ -95,8 +95,8 @@ function protectWebGL() {
   const patchContext = (proto) => {
     const original = proto.getParameter;
     proto.getParameter = function(parameter) {
-      if (parameter === 37445) return spoofedGPU.vendor;  // UNMASKED_VENDOR_WEBGL
-      if (parameter === 37446) return spoofedGPU.renderer; // UNMASKED_RENDERER_WEBGL
+      if (parameter === 37445) {return spoofedGPU.vendor;}  // UNMASKED_VENDOR_WEBGL
+      if (parameter === 37446) {return spoofedGPU.renderer;} // UNMASKED_RENDERER_WEBGL
       return original.apply(this, arguments);
     };
   };
@@ -115,7 +115,7 @@ function protectWebGL() {
  */
 function protectAudioContext() {
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  if (!AudioCtx) return;
+  if (!AudioCtx) {return;}
 
   const freqNoise = seededRandom(SESSION_SEED + 100) * 0.001 - 0.0005;
   const thresholdNoise = seededRandom(SESSION_SEED + 101) * 0.1;
@@ -178,7 +178,7 @@ function protectFonts() {
  */
 function protectWebRTC() {
   const OrigRTC = window.RTCPeerConnection;
-  if (!OrigRTC) return;
+  if (!OrigRTC) {return;}
 
   // Patterns for private/local IPs (IPv4 and IPv6)
   const privateIPv4 = /192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|100\.(6[4-9]|[7-9]\d|1[0-2]\d)\./;

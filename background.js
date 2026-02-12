@@ -403,7 +403,31 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         await setupDeclarativeRules();
         sendResponse({ success: true });
         break;
-        
+
+      case 'popupBlocked':
+      case MESSAGE_TYPES.POPUP_BLOCKED:
+        await stats.incrementStat('popupsBlocked');
+        sendResponse({ success: true });
+        break;
+
+      case 'interstitialBlocked':
+      case MESSAGE_TYPES.INTERSTITIAL_BLOCKED:
+        await stats.incrementStat('interstitialsBlocked');
+        sendResponse({ success: true });
+        break;
+
+      case 'videoAdBlocked':
+      case MESSAGE_TYPES.VIDEO_AD_BLOCKED:
+        await stats.incrementStat('videoAdsBlocked');
+        sendResponse({ success: true });
+        break;
+
+      case 'pushNotificationBlocked':
+      case MESSAGE_TYPES.PUSH_NOTIFICATION_BLOCKED:
+        await stats.incrementStat('pushNotificationsBlocked');
+        sendResponse({ success: true });
+        break;
+
       default:
         sendResponse({ success: false, error: 'Unknown message type' });
     }

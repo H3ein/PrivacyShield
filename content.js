@@ -197,6 +197,107 @@ function protectTimezone() {
   }
 }
 
+// --- Advanced API Blocking ---
+
+// Block Notification API abuse
+function blockNotificationAPI() {
+  try {
+    if (typeof Notification !== 'undefined') {
+      const originalRequestPermission = Notification.requestPermission;
+      Notification.requestPermission = function() {
+        sendMessage({ type: 'pushNotificationBlocked', data: { url: window.location.href } });
+        return Promise.resolve('denied');
+      };
+
+      // Also block older callback-based API
+      Object.defineProperty(Notification, 'permission', {
+        get: () => 'denied',
+        configurable: false
+      });
+    }
+  } catch (error) {
+    ContentErrorHandler.log('blockNotificationAPI', error);
+  }
+}
+
+// Block ServiceWorker push subscriptions
+function blockPushSubscriptions() {
+  try {
+    if ('serviceWorker' in navigator) {
+      const originalRegister = navigator.serviceWorker.register;
+      navigator.serviceWorker.register = async function(scriptURL, options) {
+        const registration = await originalRegister.call(this, scriptURL, options);
+
+        // Block push manager subscription attempts
+        if (registration.pushManager) {
+          const originalSubscribe = registration.pushManager.subscribe;
+          registration.pushManager.subscribe = function() {
+            sendMessage({ type: 'pushNotificationBlocked', data: { url: window.location.href } });
+            return Promise.reject(new DOMException('Push notifications blocked', 'NotAllowedError'));
+          };
+        }
+
+        return registration;
+      };
+    }
+  } catch (error) {
+    ContentErrorHandler.log('blockPushSubscriptions', error);
+  }
+}
+
+// Block MRAID API for expandable ads
+function blockMRAID() {
+  try {
+    Object.defineProperty(window, 'mraid', {
+      get: () => {
+        return {
+          addEventListener: () => {},
+          removeEventListener: () => {},
+          getState: () => 'hidden',
+          expand: () => {},
+          close: () => {},
+          isViewable: () => false,
+          getExpandProperties: () => null,
+          setExpandProperties: () => {}
+        };
+      },
+      configurable: false
+    });
+  } catch (error) {
+    ContentErrorHandler.log('blockMRAID', error);
+  }
+}
+
+// Enhanced popup blocking
+function enhancePopupBlocking() {
+  try {
+    const originalOpen = window.open;
+    let lastUserInteraction = 0;
+
+    // Track genuine user interactions
+    ['click', 'keydown', 'touchstart'].forEach(eventType => {
+      document.addEventListener(eventType, () => {
+        lastUserInteraction = Date.now();
+      }, true);
+    });
+
+    window.open = function(url, target, features) {
+      const timeSinceInteraction = Date.now() - lastUserInteraction;
+
+      // Block if no recent user interaction (within 1 second)
+      if (timeSinceInteraction > 1000) {
+        sendMessage({ type: 'popupBlocked', data: { url: url || 'about:blank' } });
+        return null;
+      }
+
+      // Allow if user-initiated
+      return originalOpen.apply(this, arguments);
+    };
+  } catch (error) {
+    ContentErrorHandler.log('enhancePopupBlocking', error);
+  }
+}
+
 // --- Ad element hiding ---
 
 const AD_SELECTORS = [
@@ -333,7 +434,72 @@ const AD_SELECTORS = [
   'script[src*="adsbygoogle"]',
   'script[src*="adservice"]',
   'script[src*="doubleclick"]',
-  'script[data-ad-client]'
+  'script[data-ad-client]',
+
+  // --- Interstitial & Modal Overlay Ads ---
+  '[class*="interstitial"]',
+  '[id*="interstitial"]',
+  '[class*="modal-ad"]',
+  '[id*="modal-ad"]',
+  '[class*="full-page-ad"]',
+  '[class*="fullpage-ad"]',
+  '[class*="overlay-ad"]',
+  '[data-ad-type="interstitial"]',
+  '.ad-overlay',
+  '.ad-modal',
+  '.fullscreen-ad',
+  '.page-takeover',
+  '.site-takeover',
+
+  // --- Video Ad Containers ---
+  '[class*="video-ad"]',
+  '[id*="video-ad"]',
+  '[class*="preroll"]',
+  '[class*="midroll"]',
+  '[id*="preroll"]',
+  '[id*="midroll"]',
+  '.video-advertisement',
+  '.vast-container',
+  '.vmap-container',
+  'div[data-ad-type="video"]',
+  '[aria-label*="video ad" i]',
+  '[class*="ad-video-player"]',
+  '.jwplayer-ad',
+  '.video-js .vjs-ad',
+  '[class*="video_ad"]',
+  '[id*="video_ad"]',
+
+  // --- Push/Notification Ad Elements ---
+  '[class*="push-notification"]',
+  '[id*="push-notification"]',
+  '[class*="notification-ad"]',
+  '[class*="toast-ad"]',
+  '.push-ad-container',
+  '.notification-banner',
+  '[data-notification-type="ad"]',
+  '.web-push-ad',
+  '[class*="browser-notification"]',
+
+  // --- Sticky & Fixed Position Ads ---
+  '[class*="sticky-ad"]',
+  '[id*="sticky-ad"]',
+  '[class*="fixed-ad"]',
+  '[class*="floating-ad"]',
+  '.sticky-banner-ad',
+  '.floating-banner',
+  '.adhesion-ad',
+  '[class*="anchor-ad"]',
+  '[class*="docked-ad"]',
+
+  // --- Expandable & Rich Media Ads ---
+  '[class*="expandable-ad"]',
+  '[id*="expandable"]',
+  '[data-mraid]',
+  '[class*="expanding-banner"]',
+  '.mraid-container',
+  '[data-ad-type="expandable"]',
+  '[class*="rich-media-ad"]',
+  '.expand-ad'
 ];
 
 const AD_SELECTOR_STRING = AD_SELECTORS.join(', ');
@@ -371,6 +537,119 @@ function hideAdElements() {
   observer.observe(document.documentElement, { childList: true, subtree: true });
 }
 
+// Video ad detection and blocking
+function detectAndBlockVideoAds() {
+  const videos = document.querySelectorAll('video');
+
+  videos.forEach(video => {
+    // Check for ad indicators in parent containers
+    const container = video.closest('[class*="ad"]') ||
+                     video.closest('[id*="ad"]') ||
+                     video.closest('[data-ad]');
+
+    if (container) {
+      container.style.setProperty('display', 'none', 'important');
+      sendMessage({ type: 'videoAdBlocked', data: { url: window.location.href } });
+      return;
+    }
+
+    // Check video src for ad patterns
+    const src = video.src || video.currentSrc || '';
+    const adPatterns = [
+      'doubleclick.net',
+      'googlesyndication',
+      'imasdk.googleapis.com',
+      '/ad/', '/ads/',
+      'ad-tag', 'vast', 'vmap',
+      'fwmrm.net',
+      '2mdn.net',
+      'videoplaza.tv'
+    ];
+
+    if (adPatterns.some(pattern => src.includes(pattern))) {
+      video.style.setProperty('display', 'none', 'important');
+      sendMessage({ type: 'videoAdBlocked', data: { url: src } });
+    }
+  });
+}
+
+// Setup video ad observer
+function setupVideoAdBlocking() {
+  // Run initial detection
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', detectAndBlockVideoAds);
+  } else {
+    detectAndBlockVideoAds();
+  }
+
+  // Watch for dynamically added videos
+  const videoObserver = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      mutation.addedNodes.forEach(node => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          if (node.tagName === 'VIDEO' || node.querySelector('video')) {
+            detectAndBlockVideoAds();
+          }
+        }
+      });
+    });
+  });
+
+  videoObserver.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+}
+
+// Dynamic interstitial detection
+function detectInterstitialAds() {
+  const fixedElements = document.querySelectorAll('[style*="position: fixed"], [style*="position: absolute"]');
+
+  fixedElements.forEach(el => {
+    const style = window.getComputedStyle(el);
+    const position = style.position;
+    const zIndex = parseInt(style.zIndex) || 0;
+    const width = el.offsetWidth;
+    const height = el.offsetHeight;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Heuristic: fixed/absolute position + high z-index + near viewport size
+    const isHighZIndex = zIndex > 999;
+    const coversViewport = (width / viewportWidth > 0.8) && (height / viewportHeight > 0.8);
+    const isFixedOrAbsolute = position === 'fixed' || position === 'absolute';
+
+    if (isFixedOrAbsolute && isHighZIndex && coversViewport) {
+      // Additional check: does it contain ad-related classes/IDs?
+      const html = el.innerHTML.toLowerCase();
+      const adIndicators = ['advertisement', 'sponsored', 'ad-content', 'doubleclick', 'ad-banner'];
+      const hasAdIndicator = adIndicators.some(indicator =>
+        el.className.toLowerCase().includes(indicator) ||
+        el.id.toLowerCase().includes(indicator) ||
+        html.includes(indicator)
+      );
+
+      if (hasAdIndicator) {
+        el.style.setProperty('display', 'none', 'important');
+        sendMessage({ type: 'interstitialBlocked', data: { element: el.tagName } });
+      }
+    }
+  });
+}
+
+// Setup interstitial detection
+function setupInterstitialDetection() {
+  // Run periodically (every 500ms for first 5 seconds after load)
+  let detectionRuns = 0;
+  const detectionInterval = setInterval(() => {
+    detectInterstitialAds();
+    detectionRuns++;
+    if (detectionRuns > 10) {
+      clearInterval(detectionInterval);
+    }
+  }, 500);
+}
+
 // --- Setup ---
 
 function setupFingerprintingProtection() {
@@ -400,9 +679,33 @@ function initializeContentScript() {
       setupFingerprintingProtection();
     }
 
+    // Enhanced ad blocking APIs
+    if (response.success && response.data) {
+      if (response.data.blockPushNotifications !== false) {
+        blockNotificationAPI();
+        blockPushSubscriptions();
+      }
+      if (response.data.blockAds !== false) {
+        blockMRAID();
+      }
+      if (response.data.blockPopups !== false) {
+        enhancePopupBlocking();
+      }
+    }
+
     // Hide ad elements via CSS + MutationObserver
     if (response.success && response.data && response.data.blockAds !== false) {
       hideAdElements();
+    }
+
+    // Video ad blocking
+    if (response.success && response.data && response.data.blockVideoAds !== false) {
+      setupVideoAdBlocking();
+    }
+
+    // Interstitial ad detection
+    if (response.success && response.data && response.data.blockInterstitialAds !== false) {
+      setupInterstitialDetection();
     }
 
     await sendMessage({ type: MESSAGE_TYPES.CONTENT_SCRIPT_READY });
